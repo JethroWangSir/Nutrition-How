@@ -46,6 +46,14 @@ public class ship : MonoBehaviour
     {
         controls.Player.Disable();
     }
+    void OnDestroy()
+    {
+        if(controls != null)
+        {
+            controls.Dispose();
+            controls = null;
+        }
+    }
 
     void Start()
     {

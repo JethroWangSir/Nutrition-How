@@ -37,23 +37,32 @@ public class gamepadCursorController : MonoBehaviour
         {
             InputSystem.AddDevice(virtualMouse);
         }
-        InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);
+        if(playerInput != null && playerInput.user.valid)
+        {
+            InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);
+        }
         if(cursorTransform != null)
         {
             Vector2 position = cursorTransform.anchoredPosition;
             InputState.Change(virtualMouse.position, position);
         }
         InputSystem.onAfterUpdate += UpdateMotion;
-        playerInput.onControlsChanged += OnControlsChanged;
+        if(playerInput != null)
+        {
+            playerInput.onControlsChanged += OnControlsChanged;
+        }
     }
     private void OnDisable()
     {
+        InputSystem.onAfterUpdate -= UpdateMotion;
+        if(playerInput != null)
+        {
+            playerInput.onControlsChanged -= OnControlsChanged;
+        }
         if(virtualMouse != null && virtualMouse.added)
         {
             InputSystem.RemoveDevice(virtualMouse);
         }
-        InputSystem.onAfterUpdate -= UpdateMotion;
-        playerInput.onControlsChanged -= OnControlsChanged;
     }
     private void UpdateMotion()
     {
@@ -91,14 +100,21 @@ public class gamepadCursorController : MonoBehaviour
         {
             cursorTransform.gameObject.SetActive(false);
             Cursor.visible = true;
-            currentMouse.WarpCursorPosition(virtualMouse.position.ReadValue());
+            if(currentMouse != null)
+            {
+                currentMouse.WarpCursorPosition(virtualMouse.position.ReadValue());
+            }
             previousControlScheme = mouseScheme;
         }else if(playerInput.currentControlScheme == gamepadScheme && previousControlScheme != gamepadScheme)
         {
             cursorTransform.gameObject.SetActive(true);
             Cursor.visible = false;
-            InputState.Change(virtualMouse.position, currentMouse.position.ReadValue());
-            AnchorCursor(currentMouse.position.ReadValue());
+            if(currentMouse != null)
+            {
+                Vector2 mousePosition = currentMouse.position.ReadValue();
+                InputState.Change(virtualMouse.position, mousePosition);
+                AnchorCursor(mousePosition);
+            }
             previousControlScheme = gamepadScheme;
         }
     }

@@ -20,6 +20,14 @@ public class cursorController : MonoBehaviour
     {
         controls.Disable();
     }
+    private void OnDestroy()
+    {
+        if(controls != null)
+        {
+            controls.Dispose();
+            controls = null;
+        }
+    }
     private void Start()
     {
         controls.UI.ClickForCursor.started += _ => StartedClick();

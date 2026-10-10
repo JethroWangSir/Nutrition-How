@@ -21,6 +21,14 @@ public class pass : MonoBehaviour
     {
         controls.Player.Disable();
     }
+    void OnDestroy()
+    {
+        if(controls != null)
+        {
+            controls.Dispose();
+            controls = null;
+        }
+    }
     void Update()
     {
         if(level1Pass)
