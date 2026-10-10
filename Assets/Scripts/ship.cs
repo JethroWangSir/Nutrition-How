@@ -97,14 +97,14 @@ public class ship : MonoBehaviour
         {
             if(horizontalMove.x>0f)
             {
-                rb.velocity=new Vector2(accelerate*speed*Time.fixedDeltaTime,rb.velocity.y);
+                rb.linearVelocity=new Vector2(accelerate*speed*Time.fixedDeltaTime,rb.linearVelocity.y);
             }else if(horizontalMove.x<0f)
             {
-                rb.velocity=new Vector2(decelerate*speed*Time.fixedDeltaTime,rb.velocity.y);
+                rb.linearVelocity=new Vector2(decelerate*speed*Time.fixedDeltaTime,rb.linearVelocity.y);
             }
         }else
         {
-            rb.velocity=new Vector2(speed*Time.fixedDeltaTime,rb.velocity.y);
+            rb.linearVelocity=new Vector2(speed*Time.fixedDeltaTime,rb.linearVelocity.y);
         }
     }
 
@@ -114,7 +114,7 @@ public class ship : MonoBehaviour
     }
     void JumpCancel()
     {
-        rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y);
     }
 
     void OnTriggerEnter2D(Collider2D collision)

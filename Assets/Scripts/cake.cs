@@ -9,7 +9,7 @@ public class cake : MonoBehaviour
     void Start()
     {
         rb=GetComponent<Rigidbody2D>();
-        rb.velocity=transform.right*-speed;
+        rb.linearVelocity=transform.right*-speed;
     }
 
     void OnCollisionEnter2D(Collision2D collision)

@@ -141,9 +141,9 @@ public class ship4 : MonoBehaviour
         {
             // rb.velocity=new Vector2(horizontalMove.x*speed,rb.velocity.y);
             rb.AddForce(new Vector2(horizontalMove.x*force, 0f),ForceMode2D.Force);
-            if(Mathf.Abs(rb.velocity.x) >= Mathf.Abs(horizontalMove.x*speed))
+            if(Mathf.Abs(rb.linearVelocity.x) >= Mathf.Abs(horizontalMove.x*speed))
             {
-                rb.velocity=new Vector2(horizontalMove.x*speed,rb.velocity.y);
+                rb.linearVelocity=new Vector2(horizontalMove.x*speed,rb.linearVelocity.y);
             }
         }
         if(horizontalMove.x>0f&&!facing_right)
@@ -157,9 +157,9 @@ public class ship4 : MonoBehaviour
         {
             // rb.velocity=new Vector2(rb.velocity.x,verticalMove.y*speed);
             rb.AddForce(new Vector2(0f, verticalMove.y*force),ForceMode2D.Force);
-            if(Mathf.Abs(rb.velocity.y) >= Mathf.Abs(verticalMove.y*speed))
+            if(Mathf.Abs(rb.linearVelocity.y) >= Mathf.Abs(verticalMove.y*speed))
             {
-                rb.velocity=new Vector2(rb.velocity.x,verticalMove.y*speed);
+                rb.linearVelocity=new Vector2(rb.linearVelocity.x,verticalMove.y*speed);
             }
         }
     }

@@ -39,8 +39,9 @@ public class question : MonoBehaviour
     {
         soundmanager.sound_instance.Correctaudio();
         correct.SetActive(true);
-        FindObjectOfType<player>().Collectionscount2();
-        FindObjectOfType<player>().Display2();
+        player activePlayer = FindFirstObjectByType<player>();
+        activePlayer.Collectionscount2();
+        activePlayer.Display2();
     }
 
     public void CorrectFlag()

@@ -60,27 +60,27 @@ public class caker : MonoBehaviour
                 if(player.transform.position.x<transform.position.x)
                 {
                     anim.SetFloat("walking",1f);
-                    rb.velocity=new Vector2(-speed,0f);
+                    rb.linearVelocity=new Vector2(-speed,0f);
                 }else if(player.transform.position.x>transform.position.x)
                 {
                     // transform.localScale=new Vector3(-0.3f,0.3f,0.3f);
                     Flip();
                     faceleft=false;
                     anim.SetFloat("walking",1f);
-                    rb.velocity=new Vector2(speed,0f);
+                    rb.linearVelocity=new Vector2(speed,0f);
                 }
             }else//面右
             {
                 if(player.transform.position.x>transform.position.x)
                 {
                     anim.SetFloat("walking",1f);
-                    rb.velocity=new Vector2(speed,0f);
+                    rb.linearVelocity=new Vector2(speed,0f);
                 }else if(player.transform.position.x<transform.position.x)
                 {
                     Flip();
                     faceleft=true;
                     anim.SetFloat("walking",1f);
-                    rb.velocity=new Vector2(-speed,0f);
+                    rb.linearVelocity=new Vector2(-speed,0f);
                 }
             }
         }
@@ -98,12 +98,12 @@ public class caker : MonoBehaviour
         {
             if (collision.contacts[0].normal.x == -1)//左边碰撞
             {
-                rb.velocity=new Vector2(-hurtForce,rb.velocity.y);
+                rb.linearVelocity=new Vector2(-hurtForce,rb.linearVelocity.y);
                 Hurt();
             }
             else if (collision.contacts[0].normal.x == 1)//右边碰撞
             {
-                rb.velocity=new Vector2(hurtForce,rb.velocity.y);
+                rb.linearVelocity=new Vector2(hurtForce,rb.linearVelocity.y);
                 Hurt();
             }
         }
@@ -154,7 +154,7 @@ public class caker : MonoBehaviour
     {
         if(isHurt)
         {
-            if(Mathf.Abs(rb.velocity.x)<0.2f)
+            if(Mathf.Abs(rb.linearVelocity.x)<0.2f)
             {
                 anim.SetBool("escaping",false);
                 isHurt=false;

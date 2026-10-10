@@ -27,7 +27,7 @@ public class bacterial : enemy
     {
         if(isup)
         {
-            rb.velocity=new Vector2(rb.velocity.x,speed);
+            rb.linearVelocity=new Vector2(rb.linearVelocity.x,speed);
             if(transform.position.y>topy)
             {
                 isup=false;
@@ -35,7 +35,7 @@ public class bacterial : enemy
         }
         else
         {
-            rb.velocity=new Vector2(rb.velocity.x,-speed);
+            rb.linearVelocity=new Vector2(rb.linearVelocity.x,-speed);
             if(transform.position.y<buttomy)
             {
                 isup=true;

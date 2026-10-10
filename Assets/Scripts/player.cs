@@ -140,13 +140,13 @@ public class player : MonoBehaviour
         // 左右移動
         if(isCrouch)
         {
-            rb.velocity=new Vector2(0f,rb.velocity.y);
+            rb.linearVelocity=new Vector2(0f,rb.linearVelocity.y);
         }else
         {
             rb.AddForce(new Vector2(horizontalMove.x*hForce, 0f),ForceMode2D.Force);
-            if(Mathf.Abs(rb.velocity.x) >= Mathf.Abs(horizontalMove.x*hSpeed))
+            if(Mathf.Abs(rb.linearVelocity.x) >= Mathf.Abs(horizontalMove.x*hSpeed))
             {
-                rb.velocity=new Vector2(horizontalMove.x*hSpeed,rb.velocity.y);
+                rb.linearVelocity=new Vector2(horizontalMove.x*hSpeed,rb.linearVelocity.y);
             }
             anim.SetFloat("running",Mathf.Abs(horizontalMove.x));
         }
@@ -171,7 +171,7 @@ public class player : MonoBehaviour
         }
         if(isClimb)
         {
-            rb.velocity=new Vector2(rb.velocity.x,verticalMove.y*vSpeed);
+            rb.linearVelocity=new Vector2(rb.linearVelocity.x,verticalMove.y*vSpeed);
             rb.gravityScale=0;
         }else
         {
@@ -212,16 +212,16 @@ public class player : MonoBehaviour
                 isJump=true;
                 anim.SetBool("jumping",true);
                 soundmanager.sound_instance.Jumpaudio();
-                rb.velocity = Vector2.up*jumpForce;
+                rb.linearVelocity = Vector2.up*jumpForce;
             }
         }
-        if(rb.velocity.y<0f)
+        if(rb.linearVelocity.y<0f)
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier-1) * Time.deltaTime;
-        }else if(rb.velocity.y>0f && !Input.GetButton("Jump"))
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier-1) * Time.deltaTime;
+        }else if(rb.linearVelocity.y>0f && !Input.GetButton("Jump"))
         {
             isJump=false;
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier-1) * Time.deltaTime;
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier-1) * Time.deltaTime;
         }
         if(Input.GetButtonUp("Jump"))
         {
@@ -235,15 +235,15 @@ public class player : MonoBehaviour
             anim.SetBool("jumping",true);
             soundmanager.sound_instance.Jumpaudio();
             isJump=true;
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }
     void JumpMarioCancel()
     {
         isJump=false;
-        if(rb.velocity.y>0f)
+        if(rb.linearVelocity.y>0f)
         {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y*jumpMultiplier);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y*jumpMultiplier);
         }
     }
 
@@ -272,7 +272,7 @@ public class player : MonoBehaviour
         anim.SetBool("idle",false);
         if(anim.GetBool("jumping"))
         {
-            if(rb.velocity.y<0f)
+            if(rb.linearVelocity.y<0f)
             {
                 anim.SetBool("jumping",false);
                 anim.SetBool("falling",true);
@@ -282,7 +282,7 @@ public class player : MonoBehaviour
         {
             anim.SetBool("hurt",true);
             anim.SetFloat("running",0);
-            if(Mathf.Abs(rb.velocity.x)<0.2f)
+            if(Mathf.Abs(rb.linearVelocity.x)<0.2f)
             {
                 anim.SetBool("hurt",false);
                 anim.SetBool("idle",true);
@@ -403,7 +403,7 @@ public class player : MonoBehaviour
             if(collision.contacts[0].normal.y == 1)//从下方碰撞
             {
                 enemy.JumpOn();
-                rb.velocity=new Vector2(rb.velocity.x,bumpForce);
+                rb.linearVelocity=new Vector2(rb.linearVelocity.x,bumpForce);
                 anim.SetBool("jumping",true);
                 Display1();
             }else if(transform.position.x<collision.transform.position.x)
@@ -604,12 +604,12 @@ public class player : MonoBehaviour
         {
             if(dashTimeLeft>0)
             {
-                if(rb.velocity.y>0&&!isGround)
+                if(rb.linearVelocity.y>0&&!isGround)
                 {
-                    rb.velocity=new Vector2(dashSpeed*horizontalMove.x,jumpForce*0.5f);
+                    rb.linearVelocity=new Vector2(dashSpeed*horizontalMove.x,jumpForce*0.5f);
                 }else
                 {
-                    rb.velocity=new Vector2(dashSpeed*horizontalMove.x,rb.velocity.y);
+                    rb.linearVelocity=new Vector2(dashSpeed*horizontalMove.x,rb.linearVelocity.y);
                 }
                 dashTimeLeft-=Time.deltaTime;
                 shadowPool.instance.GetFromPool();
@@ -619,7 +619,7 @@ public class player : MonoBehaviour
                 isDashing=false;
                 if(!isGround)
                 {
-                    rb.velocity=new Vector2(dashSpeed*horizontalMove.x,jumpForce*0.5f);
+                    rb.linearVelocity=new Vector2(dashSpeed*horizontalMove.x,jumpForce*0.5f);
                 }
             }
         }

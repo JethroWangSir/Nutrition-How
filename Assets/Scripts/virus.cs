@@ -33,7 +33,7 @@ public class virus : enemy
             if(coll.IsTouchingLayers(ground))
             {
                 anim.SetBool("jumping",true);
-                rb.velocity=new Vector2(-speed,jumpforce);
+                rb.linearVelocity=new Vector2(-speed,jumpforce);
             }
             if(transform.position.x<leftx)
             {
@@ -45,7 +45,7 @@ public class virus : enemy
             if(coll.IsTouchingLayers(ground))
             {
                 anim.SetBool("jumping",true);
-                rb.velocity=new Vector2(speed,jumpforce);
+                rb.linearVelocity=new Vector2(speed,jumpforce);
             }
             if(transform.position.x>rightx)
             {
@@ -59,7 +59,7 @@ public class virus : enemy
     {
         if(anim.GetBool("jumping"))
         {
-            if(rb.velocity.y<0.1f)
+            if(rb.linearVelocity.y<0.1f)
             {
                 anim.SetBool("jumping",false);
                 anim.SetBool("falling",true);

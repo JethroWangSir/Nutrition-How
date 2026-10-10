@@ -25,6 +25,6 @@ public class enemy : MonoBehaviour
         GetComponent<Collider2D>().enabled=false;
         GetComponent<BoxCollider2D>().enabled=false;
         soundmanager.sound_instance.Hurt0audio();
-        FindObjectOfType<player>().Collectionscount1();
+        FindFirstObjectByType<player>().Collectionscount1();
     }
 }
