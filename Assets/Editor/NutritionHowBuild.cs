@@ -31,7 +31,7 @@ public static class NutritionHowBuild
             scenes = scenes,
             locationPathName = outputPath,
             target = BuildTarget.StandaloneOSX,
-            options = BuildOptions.None
+            options = BuildOptions.CompressWithLz4HC
         });
 
         if (report.summary.result != BuildResult.Succeeded)

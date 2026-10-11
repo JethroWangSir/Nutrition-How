@@ -38,4 +38,5 @@
 ```
 
 預設輸出為 `/tmp/Nutrition-How-macOS-arm64.app`；可用
-`NUTRITION_HOW_BUILD_PATH` 指定其他輸出位置。
+`NUTRITION_HOW_BUILD_PATH` 指定其他輸出位置。建置會使用無損的 LZ4HC
+資料壓縮，縮小成品容量但不降低圖片品質。
