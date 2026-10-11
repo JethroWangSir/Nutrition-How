@@ -7,17 +7,20 @@ public class startTimer : MonoBehaviour
 {
     public float timeLeft;
     public Text timeText;
-    void Start()
-    {
+    private bool completed;
 
-    }
     void Update()
     {
-        // Time.timeScale=0f;
-        timeText.text=timeLeft.ToString("0");
-        timeLeft-=Time.deltaTime;
-        if(timeLeft==0f)
+        if(completed)
         {
+            return;
+        }
+
+        timeLeft=Mathf.Max(0f,timeLeft-Time.deltaTime);
+        timeText.text=timeLeft.ToString("0");
+        if(timeLeft<=0f)
+        {
+            completed=true;
             Time.timeScale=1f;
             timeText.enabled=false;
         }

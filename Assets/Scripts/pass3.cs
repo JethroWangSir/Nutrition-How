@@ -4,11 +4,21 @@ using UnityEngine;
 
 public class pass3 : MonoBehaviour
 {
+    private ship target;
+    void Start()
+    {
+        GameObject targetObject=GameObject.Find("ship3-2");
+        if(targetObject!=null)
+        {
+            target=targetObject.GetComponent<ship>();
+        }
+    }
     void Update()
     {
-        if(GameObject.Find("ship3-2").GetComponent<ship>().Pass())
+        if(target!=null && target.Pass())
         {
             pass.level3Pass=true;
+            enabled=false;
         }
     }
 }

@@ -7,25 +7,43 @@ public class levelLoader : MonoBehaviour
 {
     public Animator transition;
     public float transitionTime;
+    private bool isLoading;
+    private int pendingSceneIndex = -1;
 
     public void LoadNextLevel()
     {
-        StartCoroutine(LoadLevel(SceneManager.GetActiveScene().buildIndex+1));
+        RequestLoad(SceneManager.GetActiveScene().buildIndex+1);
     }
 
     public void LoadThisLevel()
     {
-        StartCoroutine(LoadLevel(SceneManager.GetActiveScene().buildIndex));
+        RequestLoad(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void LoadPreviousLevel()
     {
-        StartCoroutine(LoadLevel(SceneManager.GetActiveScene().buildIndex-1));
+        RequestLoad(SceneManager.GetActiveScene().buildIndex-1);
     }
 
     public void LoadSomeLevel(int levelNum)
     {
-        StartCoroutine(LoadLevel(levelNum));
+        RequestLoad(levelNum);
+    }
+
+    void RequestLoad(int levelIndex)
+    {
+        if(isLoading)
+        {
+            return;
+        }
+        if(levelIndex<0 || levelIndex>=SceneManager.sceneCountInBuildSettings)
+        {
+            Debug.LogError($"Cannot load scene index {levelIndex}; Build Settings contains {SceneManager.sceneCountInBuildSettings} scenes.");
+            return;
+        }
+        isLoading=true;
+        pendingSceneIndex=levelIndex;
+        StartCoroutine(LoadLevel(levelIndex));
     }
 
     IEnumerator LoadLevel(int levelIndex)

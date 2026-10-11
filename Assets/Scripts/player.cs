@@ -44,6 +44,9 @@ public class player : MonoBehaviour
     public Image cdImage;
     public bool passLevel;
     private PlayerInputActions controls;
+    private bool loseScheduled;
+    private bool sceneTransitionScheduled;
+    private bool winAnimationPlayed;
     private void Awake()
     {
         controls = new PlayerInputActions();
@@ -82,6 +85,7 @@ public class player : MonoBehaviour
         coll=GetComponent<Collider2D>();
         anim=GetComponent<Animator>();
         hp=maxHp;
+        isInvincible=false;
         BoxColliderClick=GetComponent<SpriteRenderer>();
         collections=0;
         collectionAnim=GameObject.Find("collectionsnum").GetComponent<Animator>();
@@ -103,8 +107,9 @@ public class player : MonoBehaviour
         Hpfunction();
         Collectionsnum();
         Invinsible();
-        if(hp>=1 && caker.hp==0)
+        if(!winAnimationPlayed && winAnim!=null && hp>=1 && caker.hp==0)
         {
+            winAnimationPlayed=true;
             winAnim.Play("win");
         }
     }
@@ -127,6 +132,8 @@ public class player : MonoBehaviour
 
     void GoGo()
     {
+        CancelInvoke(nameof(Lose));
+        loseScheduled=false;
         hp=maxHp;
         caker.hp=2;
         collectionAnim.SetTrigger("plus");
@@ -349,7 +356,7 @@ public class player : MonoBehaviour
         {
             if(collections+1<caker.hp)
             {
-                Invoke("Lose",1.5f);
+                ScheduleLose();
             }
         }
         if(collision.tag=="acid")
@@ -358,23 +365,25 @@ public class player : MonoBehaviour
         }
         if(collision.tag=="door")
         {
-            if(isGround && hp>=1)
+            if(isGround && hp>=1 && !sceneTransitionScheduled)
             {
+                sceneTransitionScheduled=true;
                 soundmanager.sound_instance.DoorAudio();
                 rb.constraints = RigidbodyConstraints2D.FreezePosition;
                 passLevel=true;
                 anim.Play("fadeout");
-                Invoke("GotoMenu",0.8f);
+                Invoke(nameof(GotoMenu),0.8f);
             }
         }
         if(collision.tag=="ship")
         {
-            if(isGround && hp>=1)
+            if(isGround && hp>=1 && !sceneTransitionScheduled)
             {
+                sceneTransitionScheduled=true;
                 soundmanager.sound_instance.DoorAudio();
                 rb.constraints = RigidbodyConstraints2D.FreezePosition;
                 anim.Play("fadeout");
-                Invoke("NextScene",0.5f);
+                Invoke(nameof(NextScene),0.5f);
             }
         }
     }
@@ -383,6 +392,16 @@ public class player : MonoBehaviour
     {
         hp=0;
         loseDialog.SetActive(true);
+    }
+
+    void ScheduleLose()
+    {
+        if(loseScheduled)
+        {
+            return;
+        }
+        loseScheduled=true;
+        Invoke(nameof(Lose),1.5f);
     }
 
     //碰撞敵人
@@ -487,7 +506,7 @@ public class player : MonoBehaviour
         if(hp<=0)
         {
             hpAnim.Play("hp1");
-            Invoke("Lose",1.5f);
+            ScheduleLose();
         }
     }
 

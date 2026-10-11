@@ -33,35 +33,22 @@ public class pass : MonoBehaviour
     }
     void Update()
     {
-        if(level1Pass)
-        {
-            levelPassAnim[0].SetActive(true);
-        }else
-        {
-            levelPassAnim[0].SetActive(false);
-        }
-        if(level2Pass)
-        {
-            levelPassAnim[1].SetActive(true);
-        }else
-        {
-            levelPassAnim[1].SetActive(false);
-        }
-        if(level3Pass)
-        {
-            levelPassAnim[2].SetActive(true);
-        }else
-        {
-            levelPassAnim[2].SetActive(false);
-        }
-        if(level4Pass)
-        {
-            levelPassAnim[3].SetActive(true);
-        }else
-        {
-            levelPassAnim[3].SetActive(false);
-        }
+        SetIndicator(0,level1Pass);
+        SetIndicator(1,level2Pass);
+        SetIndicator(2,level3Pass);
+        SetIndicator(3,level4Pass);
         EvaluateCompletion();
+    }
+    void SetIndicator(int index,bool active)
+    {
+        if(levelPassAnim==null || index>=levelPassAnim.Length || levelPassAnim[index]==null)
+        {
+            return;
+        }
+        if(levelPassAnim[index].activeSelf!=active)
+        {
+            levelPassAnim[index].SetActive(active);
+        }
     }
     public void EvaluateCompletion()
     {

@@ -29,6 +29,9 @@ public class ship : MonoBehaviour
     public bool passLevel;
     public GameObject door;
     private PlayerInputActions controls;
+    private bool loseScheduled;
+    private bool sceneTransitionScheduled;
+    private bool winAnimationPlayed;
     private void Awake()
     {
         controls = new PlayerInputActions();
@@ -60,6 +63,7 @@ public class ship : MonoBehaviour
         rb=GetComponent<Rigidbody2D>();
         anim=GetComponent<Animator>();
         hp = max_hp;
+        isInvincible=false;
         BoxColliderClick=GetComponent<SpriteRenderer>();
         collections=0;
         collectionAnim=GameObject.Find("collectionsnum").GetComponent<Animator>();
@@ -85,6 +89,8 @@ public class ship : MonoBehaviour
 
     void GoGo()
     {
+        CancelInvoke(nameof(Lose));
+        loseScheduled=false;
         hp=max_hp;
         collectionAnim.SetTrigger("plus");
         collections+=10;
@@ -119,13 +125,14 @@ public class ship : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag=="door")
+        if(collision.tag=="door" && !sceneTransitionScheduled)
         {
+            sceneTransitionScheduled=true;
             soundmanager.sound_instance.DoorAudio();
             rb.constraints = RigidbodyConstraints2D.FreezePosition;
             passLevel=true;
             anim.Play("fadeout");
-            Invoke("GotoMenu",0.8f);
+            Invoke(nameof(GotoMenu),0.8f);
         }
     }
 
@@ -140,13 +147,23 @@ public class ship : MonoBehaviour
         loseDialog.SetActive(true);
     }
 
+    void ScheduleLose()
+    {
+        if(loseScheduled)
+        {
+            return;
+        }
+        loseScheduled=true;
+        Invoke(nameof(Lose),1.5f);
+    }
+
     void OnTriggerStay2D(Collider2D collision)
     {
         if(collision.tag=="bosscorner")
         {
             if(collections<=7)
             {
-                Invoke("Lose",1.5f);
+                ScheduleLose();
             }
         }
     }
@@ -203,7 +220,7 @@ public class ship : MonoBehaviour
         if(hp<=0)
         {
             hpAnim.Play("hp1");
-            Invoke("Lose",1.5f);
+            ScheduleLose();
         }
     }
 
@@ -213,7 +230,11 @@ public class ship : MonoBehaviour
         if(collections>=8 && hp>=1)
         {
             door.SetActive(true);
-            winAnim.Play("win");
+            if(!winAnimationPlayed)
+            {
+                winAnimationPlayed=true;
+                winAnim.Play("win");
+            }
         }
     }
 

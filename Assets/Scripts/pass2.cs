@@ -4,11 +4,21 @@ using UnityEngine;
 
 public class pass2 : MonoBehaviour
 {
+    private player target;
+    void Start()
+    {
+        GameObject targetObject=GameObject.Find("player2");
+        if(targetObject!=null)
+        {
+            target=targetObject.GetComponent<player>();
+        }
+    }
     void Update()
     {
-        if(GameObject.Find("player2").GetComponent<player>().Pass())
+        if(target!=null && target.Pass())
         {
             pass.level2Pass=true;
+            enabled=false;
         }
     }
 }

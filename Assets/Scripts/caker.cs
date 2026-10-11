@@ -24,6 +24,7 @@ public class caker : MonoBehaviour
     public Transform firepoint;
     public float invincibleTime,invincibleTimer;
     public bool isInvincible;
+    private bool deathScheduled;
     void Start()
     {
         rb=GetComponent<Rigidbody2D>();
@@ -170,11 +171,13 @@ public class caker : MonoBehaviour
         {
             hp=max_hp;
         }
-        if(hp==0)
+        if(hp<=0 && !deathScheduled)
         {
-            Invoke("Escape",0.35f);
+            deathScheduled=true;
+            hp=0;
+            Invoke(nameof(Escape),0.35f);
             anim.Play("escapejump");
-            Invoke("Appear",1f);
+            Invoke(nameof(Appear),1f);
         }
     }
 

@@ -21,6 +21,9 @@ public class ship4 : MonoBehaviour
     public bool passLevel;
     private PlayerInputActions controls;
     public GameObject water;
+    private bool timerExpired;
+    private bool sceneTransitionScheduled;
+    private int growthStage;
     private void Awake()
     {
         controls = new PlayerInputActions();
@@ -51,6 +54,8 @@ public class ship4 : MonoBehaviour
     {
         rb=GetComponent<Rigidbody2D>();
         anim=GetComponent<Animator>();
+        timerExpired=false;
+        growthStage=0;
         // Time.timeScale=1f;
     }
 
@@ -127,9 +132,17 @@ public class ship4 : MonoBehaviour
             }
         }else
         {
-            water.GetComponent<BoxCollider2D>().enabled=false;
             timeLeft=0f;
-            loseDialog.SetActive(true);
+            if(!timerExpired)
+            {
+                timerExpired=true;
+                BoxCollider2D waterCollider=water.GetComponent<BoxCollider2D>();
+                if(waterCollider!=null)
+                {
+                    waterCollider.enabled=false;
+                }
+                loseDialog.SetActive(true);
+            }
         }
     }
 
@@ -172,31 +185,37 @@ public class ship4 : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag=="water4-1")
+        if(collision.tag=="water4-1" && !sceneTransitionScheduled)
         {
+            sceneTransitionScheduled=true;
             timeTextObject.SetActive(false);
             timeLeft=20;
+            timerExpired=false;
+            growthStage=0;
             soundmanager.sound_instance.SwimAudio();
             anim.Play("smaller");
-            Invoke("NextShip1",0.8f);
-            Invoke("NextScene",1.5f);
+            Invoke(nameof(NextShip1),0.8f);
+            Invoke(nameof(NextScene),1.5f);
         }
         if(collision.tag=="water4-2")
         {
             timeTextObject.SetActive(false);
             timeLeft=20;
+            timerExpired=false;
+            growthStage=0;
             soundmanager.sound_instance.SwimAudio();
             anim.Play("smaller");
-            Invoke("NextShip1",0.8f);
+            Invoke(nameof(NextShip1),0.8f);
             door.SetActive(true);
         }
-        if(collision.tag=="door")
+        if(collision.tag=="door" && !sceneTransitionScheduled)
         {
+            sceneTransitionScheduled=true;
             soundmanager.sound_instance.DoorAudio();
             rb.constraints = RigidbodyConstraints2D.FreezePosition;
             passLevel=true;
             anim.Play("fadeout");
-            Invoke("GotoMenu",0.8f);
+            Invoke(nameof(GotoMenu),0.8f);
         }
     }
 
@@ -242,23 +261,26 @@ public class ship4 : MonoBehaviour
     {
         if(timeLeft>0f)
         {
-            if(timeLeft<=15f&&timeLeft>=14.5f)
+            if(growthStage==0 && timeLeft<=15f)
             {
+                growthStage=1;
                 soundmanager.sound_instance.BiggerAudio();
                 anim.Play("bigger");
-                Invoke("NextShip2",0.8f);
+                Invoke(nameof(NextShip2),0.8f);
             }
-            else if(timeLeft<=10f&&timeLeft>=9.5f)
+            else if(growthStage==1 && timeLeft<=10f)
             {
+                growthStage=2;
                 soundmanager.sound_instance.BiggerAudio();
                 anim.Play("bigger2");
-                Invoke("NextShip3",0.8f);
+                Invoke(nameof(NextShip3),0.8f);
             }
-            else if(timeLeft<=5f&&timeLeft>=4.5f)
+            else if(growthStage==2 && timeLeft<=5f)
             {
+                growthStage=3;
                 soundmanager.sound_instance.BiggerAudio();
                 anim.Play("bigger3");
-                Invoke("NextShip4",0.8f);
+                Invoke(nameof(NextShip4),0.8f);
             }
         }
     }
