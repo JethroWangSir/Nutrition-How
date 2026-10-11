@@ -7,7 +7,9 @@ public class pass : MonoBehaviour
     static public bool level1Pass,level2Pass,level3Pass,level4Pass;
     public GameObject[] levelPassAnim;
     public float timeLeft,time;
+    public float endingDelay=2.3f;
     private PlayerInputActions controls;
+    private bool endingScheduled;
     private void Awake()
     {
         controls = new PlayerInputActions();
@@ -59,9 +61,20 @@ public class pass : MonoBehaviour
         {
             levelPassAnim[3].SetActive(false);
         }
-        if(level1Pass && level2Pass && level3Pass && level4Pass)
+        EvaluateCompletion();
+    }
+    public void EvaluateCompletion()
+    {
+        if(level1Pass && level2Pass && level3Pass && level4Pass && !endingScheduled)
         {
-            Invoke("GotoEnding",2.3f);
+            endingScheduled=true;
+            if(endingDelay<=0f)
+            {
+                GotoEnding();
+            }else
+            {
+                Invoke(nameof(GotoEnding),endingDelay);
+            }
         }
     }
     void GotoEnding()
@@ -71,6 +84,8 @@ public class pass : MonoBehaviour
     }
     void NoLevelPass()
     {
+        CancelInvoke(nameof(GotoEnding));
+        endingScheduled=false;
         level1Pass=false;
         level2Pass=false;
         level3Pass=false;

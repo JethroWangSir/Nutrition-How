@@ -8,7 +8,7 @@ using UnityEngine;
 
 public static class NutritionHowBuild
 {
-    private const string DefaultOutputPath = "/tmp/Nutrition-How-macOS-arm64.app";
+    private const string DefaultOutputPath = "/tmp/營養 How 解-macOS-arm64.app";
 
     [MenuItem("Build/Nutrition HOW/macOS Apple Silicon")]
     public static void BuildMacArm64()

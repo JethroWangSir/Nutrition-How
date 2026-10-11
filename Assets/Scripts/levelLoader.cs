@@ -32,7 +32,10 @@ public class levelLoader : MonoBehaviour
     {
         // var loadingOperation = SceneManager.LoadSceneAsync(levelIndex);
         // loadingOperation.allowSceneActivation = false;
-        transition.SetTrigger("start");
+        if(transition != null)
+        {
+            transition.SetTrigger("start");
+        }
         yield return new WaitForSeconds(transitionTime);
         SceneManager.LoadScene(levelIndex);
         // loadingOperation.allowSceneActivation = true;

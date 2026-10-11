@@ -5,6 +5,8 @@
 ## 目前版本
 
 - Unity Editor: `6000.3.26f1`（Unity 6.3 LTS）
+- App 顯示名稱: `營養 How 解`
+- Bundle Identifier: `com.jethrowangsir.nutritionhow`
 - 專案內容: `Assets/`, `Packages/`, `ProjectSettings/`
 - Git LFS: 大型圖片與影片素材
 - 目標平台: Apple Silicon Mac（`arm64`）
@@ -37,6 +39,19 @@
   -quit
 ```
 
-預設輸出為 `/tmp/Nutrition-How-macOS-arm64.app`；可用
+預設輸出為 `/tmp/營養 How 解-macOS-arm64.app`；可用
 `NUTRITION_HOW_BUILD_PATH` 指定其他輸出位置。建置會使用無損的 LZ4HC
 資料壓縮，縮小成品容量但不降低圖片品質。
+
+## 製作 DMG
+
+```sh
+./scripts/package_macos_dmg.sh
+```
+
+輸出位於 `Builds/macOS/營養-How-解-macOS-arm64.dmg`。腳本會確認 App
+只包含 `arm64`、驗證簽章結構並驗證 DMG。這個流程不包含 Apple Developer
+ID 簽署與 Apple 公證；公開散布且需要避免 Gatekeeper 警告時，仍需有效的
+Apple Developer 帳號與簽署憑證。
+
+建置容量分析請參考 [`Docs/BUILD_SIZE_AUDIT.md`](Docs/BUILD_SIZE_AUDIT.md)。
