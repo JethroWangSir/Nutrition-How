@@ -752,7 +752,8 @@ PlayerSettings:
     iPhone: UNITY_POST_PROCESSING_STACK_V2
     tvOS: UNITY_POST_PROCESSING_STACK_V2
   additionalCompilerArguments: {}
-  platformArchitecture: {}
+  platformArchitecture:
+    Standalone: 1
   scriptingBackend:
     Android: 0
   il2cppCompilerConfiguration: {}
