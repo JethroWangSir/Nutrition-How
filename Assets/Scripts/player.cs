@@ -89,7 +89,7 @@ public class player : MonoBehaviour
         displayAnim=GameObject.Find("display").GetComponent<Animator>();
         if(floorBoss)
         {
-            floorBossAnim=GameObject.Find("floorBoss").GetComponent<Animator>();
+            floorBossAnim=floorBoss.GetComponent<Animator>();
         }
         heartEffectAnim=GameObject.Find("heartEffect").GetComponent<Animator>();
         if(win)
@@ -337,7 +337,10 @@ public class player : MonoBehaviour
 
     void BossFloor()
     {
-        floorBossAnim.Play("floorBoss");
+        if(floorBossAnim != null)
+        {
+            floorBossAnim.Play("floorBoss");
+        }
     }
 
     void OnTriggerStay2D(Collider2D collision)
