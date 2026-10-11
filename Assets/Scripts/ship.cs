@@ -138,7 +138,7 @@ public class ship : MonoBehaviour
 
     void GotoMenu()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(2);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Menu);
     }
 
     void Lose()

@@ -124,3 +124,23 @@
 - App 簽章結構：`codesign --verify --deep --strict` 通過。
 - 顯示名稱：`營養 How 解`。
 - Bundle Identifier：`com.jethrowangsir.nutritionhow`。
+
+## 第二批處理紀錄
+
+2026-10-11 已完成流程測試擴充與場景識別集中化：
+
+- 新增獨立的 `NutritionHow.SceneCatalog` assembly，集中定義正式 23 個場景索引。
+- 主選單、角色回首頁、結局影片與完成流程改用共用場景常數。
+- PlayMode 測試與遊戲程式共用同一份場景目錄。
+- 場景 smoke test 固定驗證 23 個正式場景，不受 Unity Test Runner 臨時初始化場景影響。
+- 新增暫停／繼續／暫停後回主選單測試。
+- 新增死亡視窗顯示與重新開始關卡測試。
+- 新增 Boss 死亡後出口開啟測試。
+- 新增第四關倒數結束、失敗視窗與水區觸發器停用測試。
+
+驗證結果：
+
+- PlayMode：10/10 通過，0 failed。
+- Apple Silicon Build：Success，LZ4HC App 約 418 MB。
+- 執行檔架構：僅 `arm64`。
+- App 簽章結構：`codesign --verify --deep --strict` 通過。

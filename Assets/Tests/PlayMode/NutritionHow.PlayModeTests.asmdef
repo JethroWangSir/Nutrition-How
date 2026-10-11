@@ -1,6 +1,8 @@
 {
   "name": "NutritionHow.PlayModeTests",
-  "references": [],
+  "references": [
+    "NutritionHow.SceneCatalog"
+  ],
   "optionalUnityReferences": [
     "TestAssemblies"
   ],

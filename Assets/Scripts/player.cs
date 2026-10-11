@@ -334,7 +334,7 @@ public class player : MonoBehaviour
     
     void GotoMenu()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(2);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Menu);
     }
 
     void NextScene()

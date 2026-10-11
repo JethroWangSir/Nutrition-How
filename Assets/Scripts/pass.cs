@@ -67,7 +67,7 @@ public class pass : MonoBehaviour
     void GotoEnding()
     {
         NoLevelPass();
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(22);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Ending);
     }
     void NoLevelPass()
     {

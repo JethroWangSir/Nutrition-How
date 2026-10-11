@@ -21,7 +21,7 @@ public class menu : MonoBehaviour
     }
     public void StartGame()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(1);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Opening);
     }
     public void Skip()
     {
@@ -75,53 +75,53 @@ public class menu : MonoBehaviour
 
     public void Knowledge()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(3);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeOralCavity);
     }
 
     public void Oral_cavity()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(3);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeOralCavity);
     }
 
     public void Stomach()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(4);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeStomach);
     }
 
     public void Small_intestine()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(5);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeSmallIntestineStart);
     }
 
     public void Next1()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(6);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeSmallIntestineEnd);
     }
 
     public void Previous1()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(5);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeSmallIntestineStart);
     }
 
     public void Large_intestine()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(7);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeLargeIntestineStart);
     }
 
     public void Next2()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(8);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeLargeIntestineEnd);
     }
 
     public void Previous2()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(7);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.KnowledgeLargeIntestineStart);
     }
 
     public void Home()
     {
         Time.timeScale=1f;
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(2);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Menu);
     }
     public void Instruction()
     {
@@ -133,22 +133,22 @@ public class menu : MonoBehaviour
     }
     public void StartPage()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(0);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Start);
     }
     public void Level1()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(9);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Instruction1);
     }
     public void Level2()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(11);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Instruction2);
     }
     public void Level3()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(13);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Instruction3Part1);
     }
     public void Level4()
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(18);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Instruction4);
     }
 }

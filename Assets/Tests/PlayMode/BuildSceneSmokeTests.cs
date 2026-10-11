@@ -11,6 +11,10 @@ public class BuildSceneSmokeTests
     public IEnumerator AllBuildScenesLoadWithoutRuntimeErrors()
     {
         Assert.Greater(SceneManager.sceneCountInBuildSettings, 0, "Build Settings contains no scenes.");
+        Assert.GreaterOrEqual(
+            SceneManager.sceneCountInBuildSettings,
+            NutritionHowScenes.Count,
+            "Build Settings contains fewer scenes than the centralized scene catalog.");
         List<string> unexpectedLogs = new List<string>();
 
         Application.LogCallback logHandler = (condition, stackTrace, type) =>
@@ -25,7 +29,9 @@ public class BuildSceneSmokeTests
 
         try
         {
-            for (int buildIndex = 0; buildIndex < SceneManager.sceneCountInBuildSettings; buildIndex++)
+            // The Unity Test Runner may append a temporary initialization scene.
+            // Only the catalogued production scenes belong to this smoke test.
+            for (int buildIndex = 0; buildIndex < NutritionHowScenes.Count; buildIndex++)
             {
                 unexpectedLogs.Clear();
                 string scenePath = SceneUtility.GetScenePathByBuildIndex(buildIndex);

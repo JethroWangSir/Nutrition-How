@@ -15,7 +15,7 @@ public class endingVideo : MonoBehaviour
     }
     void EndReached(UnityEngine.Video.VideoPlayer vp)
     {
-        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(0);
+        GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Start);
     }
     public void Play()
     {

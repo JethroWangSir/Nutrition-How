@@ -45,11 +45,11 @@ public class StabilityRegressionTests
         MonoBehaviour loader = AddRuntimeComponent(loaderObject, "levelLoader");
         SetField(loader, "transitionTime", 10f);
 
-        Invoke(loader, "LoadSomeLevel", 0);
-        Invoke(loader, "LoadSomeLevel", 1);
+        Invoke(loader, "LoadSomeLevel", NutritionHowScenes.Start);
+        Invoke(loader, "LoadSomeLevel", NutritionHowScenes.Opening);
 
         Assert.IsTrue((bool)GetField(loader, "isLoading"));
-        Assert.AreEqual(0, (int)GetField(loader, "pendingSceneIndex"));
+        Assert.AreEqual(NutritionHowScenes.Start, (int)GetField(loader, "pendingSceneIndex"));
 
         UnityEngine.Object.DestroyImmediate(loaderObject);
     }
