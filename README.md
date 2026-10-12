@@ -14,6 +14,7 @@
 - 執行效能、記憶體與程式穩定性第三階段已完成
 - macOS 顯示、視窗與輸入相容性第四階段已完成，PlayMode 13/13 通過
 - 1024×768、1280×800、1920×1080 共 69 張場景視覺回歸通過
+- 第五階段「遊戲體驗與內容品質」進行中，第一批音量設定與暫停可靠性已完成
 
 ## 已完成修復
 
@@ -79,3 +80,6 @@ Apple Developer 帳號與簽署憑證。
 不同視窗比例以置中黑邊補足，不會拉伸或顯示額外關卡區域。顯示策略、
 輸入調整與多解析度驗證方式請參考
 [`Docs/MAC_DISPLAY_COMPATIBILITY.md`](Docs/MAC_DISPLAY_COMPATIBILITY.md)。
+
+第五階段的問題分級、處理順序與驗證紀錄請參考
+[`Docs/GAMEPLAY_EXPERIENCE_AUDIT.md`](Docs/GAMEPLAY_EXPERIENCE_AUDIT.md)。

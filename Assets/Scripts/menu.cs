@@ -12,11 +12,11 @@ public class menu : MonoBehaviour
     {
         if(pauseMenu)
         {
-            pauseMenuAnim=GameObject.Find("pauseMenu").GetComponent<Animator>();
+            pauseMenuAnim=pauseMenu.GetComponent<Animator>();
         }
         if(black)
         {
-            blackAnim=GameObject.Find("black").GetComponent<Animator>();
+            blackAnim=black.GetComponent<Animator>();
         }
     }
     public void StartGame()
@@ -55,15 +55,27 @@ public class menu : MonoBehaviour
 
     public void Pause()
     {
-        pauseMenuAnim.Play("pause");
-        blackAnim.Play("pause");
+        if(pauseMenuAnim != null)
+        {
+            pauseMenuAnim.Play("pause");
+        }
+        if(blackAnim != null)
+        {
+            blackAnim.Play("pause");
+        }
         Time.timeScale=0f;
     }
 
     public void Resume()
     {
-        pauseMenuAnim.Play("resume");
-        blackAnim.Play("idle");
+        if(pauseMenuAnim != null)
+        {
+            pauseMenuAnim.Play("resume");
+        }
+        if(blackAnim != null)
+        {
+            blackAnim.Play("idle");
+        }
         Time.timeScale=1f;
     }
 

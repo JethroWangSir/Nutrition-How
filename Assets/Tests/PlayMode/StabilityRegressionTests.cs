@@ -11,6 +11,7 @@ public class StabilityRegressionTests
     public void TearDown()
     {
         Time.timeScale = 1f;
+        PlayerPrefs.DeleteKey("settings.masterVolumeDb");
     }
 
     [Test]
@@ -110,6 +111,28 @@ public class StabilityRegressionTests
         Assert.That(viewport.y,Is.EqualTo(0.05f).Within(0.0001f));
         Assert.That(viewport.width,Is.EqualTo(1f).Within(0.0001f));
         Assert.That(viewport.height,Is.EqualTo(0.9f).Within(0.0001f));
+    }
+
+    [Test]
+    public void VolumeManagerClampsAndPersistsMasterVolume()
+    {
+        Type managerType = FindRuntimeType("volumeManager");
+        GameObject managerObject = new GameObject("VolumeManager");
+        MonoBehaviour manager = (MonoBehaviour)managerObject.AddComponent(managerType);
+
+        Invoke(manager,"SetVolume",-24f);
+        Assert.That(PlayerPrefs.GetFloat("settings.masterVolumeDb"),
+            Is.EqualTo(-24f).Within(0.001f));
+
+        Invoke(manager,"SetVolume",20f);
+        Assert.That(PlayerPrefs.GetFloat("settings.masterVolumeDb"),
+            Is.EqualTo(0f).Within(0.001f));
+
+        Invoke(manager,"SetVolume",-100f);
+        Assert.That(PlayerPrefs.GetFloat("settings.masterVolumeDb"),
+            Is.EqualTo(-80f).Within(0.001f));
+
+        UnityEngine.Object.DestroyImmediate(managerObject);
     }
 
     private static Type FindRuntimeType(string typeName)
