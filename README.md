@@ -55,3 +55,15 @@ ID 簽署與 Apple 公證；公開散布且需要避免 Gatekeeper 警告時，�
 Apple Developer 帳號與簽署憑證。
 
 建置容量分析請參考 [`Docs/BUILD_SIZE_AUDIT.md`](Docs/BUILD_SIZE_AUDIT.md)。
+
+## Apple Silicon 效能基準
+
+使用 Development Build 自動量測代表場景：
+
+```sh
+./scripts/benchmark_macos.sh
+```
+
+腳本會建立 arm64 Development App，以 1280×800 視窗執行兩輪場景取樣，並在
+`/tmp/nutrition-how-benchmark/` 輸出 JSON 與 logs。基準結果、判讀與限制請參考
+[`Docs/PERFORMANCE_BASELINE.md`](Docs/PERFORMANCE_BASELINE.md)。

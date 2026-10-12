@@ -144,3 +144,18 @@
 - Apple Silicon Build：Success，LZ4HC App 約 418 MB。
 - 執行檔架構：僅 `arm64`。
 - App 簽章結構：`codesign --verify --deep --strict` 通過。
+
+## 第三批處理紀錄
+
+2026-10-11 已完成 Apple Silicon Development Player 效能基準：
+
+- 新增可重複執行的 `scripts/benchmark_macos.sh`。
+- 自動建置 arm64 Development App 並驗證簽章結構。
+- 以 1280×800 實際渲染 `menu` 與五個代表遊戲場景。
+- 每個場景穩定 2 秒後取樣 5 秒，連續執行兩輪。
+- 記錄載入時間、平均／P95／最差幀時間、Main Thread、每幀 GC allocation 與記憶體峰值。
+- PlayMode 仍維持 10/10 通過。
+- 正式 Release Build 約 418 MB、僅 `arm64`、簽章結構通過，且不包含 benchmark 執行邏輯。
+- 完整方法與結果見 [`PERFORMANCE_BASELINE.md`](PERFORMANCE_BASELINE.md)。
+
+主要結果：閒置幀率穩定約 74 FPS；`level1` 載入約 4.5 秒為首要瓶頸；`level3-1` 每幀 GC allocation 約 359 bytes 為最高；兩輪記憶體配置大致穩定，未觀察到持續上升型洩漏。

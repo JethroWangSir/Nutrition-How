@@ -13,6 +13,20 @@ public static class NutritionHowBuild
     [MenuItem("Build/Nutrition HOW/macOS Apple Silicon")]
     public static void BuildMacArm64()
     {
+        BuildMacArm64(BuildOptions.CompressWithLz4HC);
+    }
+
+    [MenuItem("Build/Nutrition HOW/macOS Apple Silicon Development")]
+    public static void BuildMacArm64Development()
+    {
+        BuildMacArm64(
+            BuildOptions.CompressWithLz4HC |
+            BuildOptions.Development |
+            BuildOptions.AllowDebugging);
+    }
+
+    private static void BuildMacArm64(BuildOptions options)
+    {
         ConfigureArm64Architecture();
 
         string outputPath = Environment.GetEnvironmentVariable("NUTRITION_HOW_BUILD_PATH");
@@ -31,7 +45,7 @@ public static class NutritionHowBuild
             scenes = scenes,
             locationPathName = outputPath,
             target = BuildTarget.StandaloneOSX,
-            options = BuildOptions.CompressWithLz4HC
+            options = options
         });
 
         if (report.summary.result != BuildResult.Succeeded)
