@@ -8,6 +8,7 @@ public class startTimer : MonoBehaviour
     public float timeLeft;
     public Text timeText;
     private bool completed;
+    private int displayedSeconds=int.MinValue;
 
     void Update()
     {
@@ -17,7 +18,12 @@ public class startTimer : MonoBehaviour
         }
 
         timeLeft=Mathf.Max(0f,timeLeft-Time.deltaTime);
-        timeText.text=timeLeft.ToString("0");
+        int roundedSeconds=Mathf.RoundToInt(timeLeft);
+        if(displayedSeconds!=roundedSeconds)
+        {
+            displayedSeconds=roundedSeconds;
+            timeText.text=roundedSeconds.ToString();
+        }
         if(timeLeft<=0f)
         {
             completed=true;

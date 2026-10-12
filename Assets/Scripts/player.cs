@@ -47,6 +47,8 @@ public class player : MonoBehaviour
     private bool loseScheduled;
     private bool sceneTransitionScheduled;
     private bool winAnimationPlayed;
+    private int displayedHp=int.MinValue;
+    private int displayedCollections=int.MinValue;
     private void Awake()
     {
         controls = new PlayerInputActions();
@@ -485,25 +487,35 @@ public class player : MonoBehaviour
         if(hp>=5)
         {
             hp=5;
+        }
+
+        if(displayedHp==hp)
+        {
+            return;
+        }
+        displayedHp=hp;
+
+        if(hp>=5)
+        {
             hpAnim.Play("idle");
         }
-        if(hp==4)
+        else if(hp==4)
         {
             hpAnim.Play("hp5");
         }
-        if(hp==3)
+        else if(hp==3)
         {
             hpAnim.Play("hp4");
         }
-        if(hp==2)
+        else if(hp==2)
         {
             hpAnim.Play("hp3");
         }
-        if(hp==1)
+        else if(hp==1)
         {
             hpAnim.Play("hp2");
         }
-        if(hp<=0)
+        else
         {
             hpAnim.Play("hp1");
             ScheduleLose();
@@ -548,6 +560,11 @@ public class player : MonoBehaviour
     //收集計數
     void Collectionsnum()
     {
+        if(displayedCollections==collections)
+        {
+            return;
+        }
+        displayedCollections=collections;
         collectionsNum.text=collections.ToString();
     }
 

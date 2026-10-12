@@ -11,6 +11,7 @@
 - Git LFS: 大型圖片與影片素材
 - 目標平台: Apple Silicon Mac（`arm64`）
 - 已驗證開場、選單、四個關卡流程及全部 23 個建置場景
+- 執行效能、記憶體與程式穩定性第三階段已完成，PlayMode 11/11 通過
 
 ## 已完成修復
 
@@ -67,3 +68,5 @@ Apple Developer 帳號與簽署憑證。
 腳本會建立 arm64 Development App，以 1280×800 視窗執行兩輪場景取樣，並在
 `/tmp/nutrition-how-benchmark/` 輸出 JSON 與 logs。基準結果、判讀與限制請參考
 [`Docs/PERFORMANCE_BASELINE.md`](Docs/PERFORMANCE_BASELINE.md)。
+
+在 Unity 選擇 **Tools > Nutrition HOW > Audit Scene Dependencies**，可重新輸出場景素材依賴稽核，協助追查大型場景的載入成本。

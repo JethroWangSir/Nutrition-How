@@ -24,6 +24,8 @@ public class ship4 : MonoBehaviour
     private bool timerExpired;
     private bool sceneTransitionScheduled;
     private int growthStage;
+    private int displayedSeconds=int.MinValue;
+    private int countdownImageIndex=int.MinValue;
     private void Awake()
     {
         controls = new PlayerInputActions();
@@ -79,7 +81,12 @@ public class ship4 : MonoBehaviour
 
     void Timer()
     {
-        timeText.text=timeLeft.ToString("F0");
+        int roundedSeconds=Mathf.RoundToInt(timeLeft);
+        if(displayedSeconds!=roundedSeconds)
+        {
+            displayedSeconds=roundedSeconds;
+            timeText.text=roundedSeconds.ToString();
+        }
         if(timeLeft>0f)
         {
             timeLeft-=Time.deltaTime;
@@ -87,49 +94,7 @@ public class ship4 : MonoBehaviour
             {
                 // soundmanager.sound_instance.CounterAudio();
             }
-            if(timeLeft<5.5f&&timeLeft>=4.5f)
-            {
-                timeImage[4].SetActive(true);
-                timeImage[3].SetActive(false);
-                timeImage[2].SetActive(false);
-                timeImage[1].SetActive(false);
-                timeImage[0].SetActive(false);
-            }else if(timeLeft<4.5f&&timeLeft>=3.5f)
-            {
-                timeImage[4].SetActive(false);
-                timeImage[3].SetActive(true);
-                timeImage[2].SetActive(false);
-                timeImage[1].SetActive(false);
-                timeImage[0].SetActive(false);
-            }else if(timeLeft<3.5f&&timeLeft>=2.5f)
-            {
-                timeImage[4].SetActive(false);
-                timeImage[3].SetActive(false);
-                timeImage[2].SetActive(true);
-                timeImage[1].SetActive(false);
-                timeImage[0].SetActive(false);
-            }else if(timeLeft<2.5f&&timeLeft>=1.5f)
-            {
-                timeImage[4].SetActive(false);
-                timeImage[3].SetActive(false);
-                timeImage[2].SetActive(false);
-                timeImage[1].SetActive(true);
-                timeImage[0].SetActive(false);
-            }else if(timeLeft<1.5f&&timeLeft>=0.5f)
-            {
-                timeImage[4].SetActive(false);
-                timeImage[3].SetActive(false);
-                timeImage[2].SetActive(false);
-                timeImage[1].SetActive(false);
-                timeImage[0].SetActive(true);
-            }else
-            {
-                timeImage[4].SetActive(false);
-                timeImage[3].SetActive(false);
-                timeImage[2].SetActive(false);
-                timeImage[1].SetActive(false);
-                timeImage[0].SetActive(false);
-            }
+            UpdateCountdownImage(GetCountdownImageIndex(timeLeft));
         }else
         {
             timeLeft=0f;
@@ -143,6 +108,29 @@ public class ship4 : MonoBehaviour
                 }
                 loseDialog.SetActive(true);
             }
+        }
+    }
+
+    int GetCountdownImageIndex(float seconds)
+    {
+        if(seconds<5.5f && seconds>=4.5f) return 4;
+        if(seconds<4.5f && seconds>=3.5f) return 3;
+        if(seconds<3.5f && seconds>=2.5f) return 2;
+        if(seconds<2.5f && seconds>=1.5f) return 1;
+        if(seconds<1.5f && seconds>=0.5f) return 0;
+        return -1;
+    }
+
+    void UpdateCountdownImage(int activeIndex)
+    {
+        if(countdownImageIndex==activeIndex)
+        {
+            return;
+        }
+        countdownImageIndex=activeIndex;
+        for(int i=0;i<timeImage.Length;i++)
+        {
+            timeImage[i].SetActive(i==activeIndex);
         }
     }
 

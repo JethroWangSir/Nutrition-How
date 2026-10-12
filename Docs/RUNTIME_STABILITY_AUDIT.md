@@ -1,7 +1,9 @@
 # 執行效能與程式穩定性盤點
 
-盤點日期：2026-10-11  
-專案版本：Unity 6000.3.26f1（Unity 6.3 LTS）  
+盤點日期：2026-10-12
+
+專案版本：Unity 6000.3.26f1（Unity 6.3 LTS）
+
 盤點基準：`main` / `a115ca5`
 
 ## 結論
@@ -158,4 +160,27 @@
 - 正式 Release Build 約 418 MB、僅 `arm64`、簽章結構通過，且不包含 benchmark 執行邏輯。
 - 完整方法與結果見 [`PERFORMANCE_BASELINE.md`](PERFORMANCE_BASELINE.md)。
 
-主要結果：閒置幀率穩定約 74 FPS；`level1` 載入約 4.5 秒為首要瓶頸；`level3-1` 每幀 GC allocation 約 359 bytes 為最高；兩輪記憶體配置大致穩定，未觀察到持續上升型洩漏。
+主要結果：閒置幀率受 VSync 限制並保持穩定；`level1` 仍是載入最慢場景；`level3-1` 每幀 GC allocation 為代表場景最高；兩輪記憶體配置大致穩定，未觀察到持續上升型洩漏。
+
+## 第四批處理紀錄（第三階段完成）
+
+2026-10-12 已完成效能修正、載入優化與壓力驗證：
+
+- 玩家、飛船、第四關倒數及開始倒數的 UI 文字只在數值改變時更新。
+- 玩家與飛船 HP 動畫只在 HP 狀態改變時播放。
+- 第四關倒數圖示只在顯示階段改變時切換，閒置 GC 由 26 B/frame 降至 0。
+- 新增 Unity 場景依賴稽核工具，定位 `level1` 的 226 張舌頭背景逐格動畫。
+- 舌頭動畫由 60 FPS／226 張調整為 30 FPS／113 張，維持 1920×500 解析度與 3.77 秒總長。
+- `level1` 來源依賴總量由約 206 MiB 降至 151 MiB，載入時間約改善 4.6%。
+- 新增四個主要遊戲場景的自動壓力回歸，涵蓋 2 倍速度、高頻敵方投射物與粒子播放。
+
+最終驗證結果：
+
+- PlayMode：11/11 通過，0 failed。
+- 23 個正式場景全部可載入。
+- 六場景兩輪效能與記憶體基準完成，沒有觀察到持續上升型洩漏。
+- 壓力回歸沒有未預期 Error 或 Exception。
+- Apple Silicon Release Build：Success，App 約 398 MB，僅包含 `arm64`。
+- App 簽章結構、中文顯示名稱與 `com.jethrowangsir.nutritionhow` Bundle Identifier 驗證通過。
+- Release 組件不包含 Development benchmark 啟動邏輯。
+- 完整最終數據見 [`PERFORMANCE_BASELINE.md`](PERFORMANCE_BASELINE.md)。

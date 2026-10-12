@@ -1,22 +1,26 @@
 # Apple Silicon 執行效能基準
 
-量測日期：2026-10-11  
-專案版本：Unity 6000.3.26f1、App 1.0.0  
-硬體：Apple M3、16 GB 統一記憶體  
-系統：macOS 26.6.2  
+最終量測日期：2026-10-12
+
+專案版本：Unity 6000.3.26f1、App 1.0.0
+
+硬體：Apple M3、16 GB 統一記憶體
+
+系統：macOS 26.6.2
+
 測試版本：Apple Silicon Development Build（arm64）
 
 ## 結論
 
-目前六個代表場景的閒置幀率穩定，首要問題不是持續渲染效能，而是部分場景載入時間與少量每幀 managed allocation：
+第三階段的執行效能、記憶體與程式穩定性驗證已完成：
 
-- 六個場景平均約 73.8–74.0 FPS，P95 幀時間約 13.86–14.28 ms。
-- `level1` 兩輪載入皆約 4.5 秒，是最明顯且可重現的載入瓶頸。
-- `level3-1` 每幀 GC allocation 約 358–359 bytes，為量測場景最高。
-- 第二輪的場景記憶體配置大致與第一輪相同，沒有觀察到持續上升型洩漏。
-- Unity reserved memory 最後穩定在約 370.91 MiB；保留記憶體不等於實際使用量，也不能單獨視為洩漏。
-
-下一步應先移除 `level1`、`level2`、`level3-1` 的每幀 UI 字串配置，再分析 `level1` 場景依賴與載入流程。不建議在目前資料下先降低圖片品質或調整角色物理更新。
+- 六個代表場景在本輪 60 Hz VSync 環境皆維持約 60 FPS，P95 幀時間低於 17.7 ms。
+- 兩輪場景切換後，Unity reserved memory 最後穩定在約 367.27 MiB，沒有觀察到持續上升型洩漏。
+- `level4-1` 的閒置每幀 GC allocation 已由 26 B/frame 降至 0。
+- `level1` 舌頭背景動畫由 226 張、60 FPS 調整為 113 張、30 FPS；1920×500 單張解析度與 3.77 秒總長不變。
+- `level1` 依賴來源總量由約 206 MiB 降至 151 MiB；兩輪載入時間由 5.61/5.52 秒降至 5.35/5.26 秒，約改善 4.6%。
+- `level1`、`level2`、`level3-1` 仍有約 164、196、412 B/frame 的低量配置，但未造成可量測的持續掉幀或記憶體累增。
+- 11/11 PlayMode 測試通過；其中新增的壓力回歸會以 2 倍遊戲速度執行四個主要關卡，並提高 Level 1 敵方投射物頻率及啟動粒子系統。
 
 ## 測試方法
 
@@ -29,13 +33,7 @@
 5. `level3-2`
 6. `level4-1`
 
-每個場景載入完成後先等待 2 秒，再取樣 5 秒。測試使用 1280×800 視窗、VSync 1、`Application.targetFrameRate = -1`。每輪記錄：
-
-- 場景載入時間。
-- 平均、P95 與最差幀時間。
-- Main Thread recorder。
-- 每幀 GC allocation。
-- Unity total allocated、reserved 與 Mono used memory 峰值。
+每個場景載入完成後先等待 2 秒，再取樣 5 秒。測試使用 1280×800 視窗、VSync 1、`Application.targetFrameRate = -1`。每輪記錄場景載入時間、平均與 P95 幀時間、Main Thread、每幀 GC allocation，以及 Unity total allocated、reserved 與 Mono used memory 峰值。
 
 執行方式：
 
@@ -43,56 +41,65 @@
 ./scripts/benchmark_macos.sh
 ```
 
-預設輸出至 `/tmp/nutrition-how-benchmark/`，包含 Development App、build log、player log 與完整 JSON。
+預設輸出至 `/tmp/nutrition-how-benchmark/`，包含 Development App、build log、player log 與完整 JSON。正式數值另存於 [`performance-stage3-final-2026-10-12.csv`](performance-stage3-final-2026-10-12.csv)。
 
-同一份程式碼亦重新完成正式 Release Build 驗證：App 約 418 MB、僅包含 `arm64`，簽章結構通過。Release 的 `Assembly-CSharp.dll` 不包含 benchmark 類別或啟動參數，量測流程只會存在於 Development Build／Editor。
+場景依賴可透過 Unity 選單 **Tools > Nutrition HOW > Audit Scene Dependencies** 重跑；命令列可執行 `NutritionHowSceneDependencyAudit.AuditSceneDependencies`。
 
-## 兩輪結果摘要
+## 最終兩輪結果
 
 | 場景 | 第一輪載入 | 第二輪載入 | 平均 FPS | P95 | GC bytes/frame | 配置峰值 |
 |---|---:|---:|---:|---:|---:|---:|
-| menu | 291 ms | 1,132 ms | 73.97 | 14.13 ms 以下 | 0 | 193.48 MiB |
-| level1 | 4,513 ms | 4,472 ms | 73.98 | 13.99 ms 以下 | 156–157 | 239.28 MiB |
-| level2 | 2,272 ms | 2,268 ms | 73.97 | 14.28 ms 以下 | 182 | 228.25 MiB |
-| level3-1 | 2,423 ms | 2,420 ms | 73.97 | 13.94 ms 以下 | 358–359 | 229.01 MiB |
-| level3-2 | 416 ms | 420 ms | 73.99 | 14.20 ms 以下 | 49–50 | 226.51 MiB |
-| level4-1 | 1,566 ms | 1,565 ms | 73.98 | 14.08 ms 以下 | 26 | 226.02 MiB |
-
-完整逐輪數值保存在 [`performance-baseline-2026-10-11.csv`](performance-baseline-2026-10-11.csv)。
+| menu | 291 ms | 1,413 ms | 60.00 | 17.65 ms 以下 | 0 | 193.64 MiB |
+| level1 | 5,353 ms | 5,265 ms | 60.00 | 16.90 ms 以下 | 164–165 | 238.06 MiB |
+| level2 | 2,800 ms | 2,792 ms | 59.90 | 17.64 ms 以下 | 195–196 | 228.41 MiB |
+| level3-1 | 2,973 ms | 2,987 ms | 60.00 | 17.59 ms 以下 | 412 | 229.17 MiB |
+| level3-2 | 517 ms | 514 ms | 59.99 | 17.67 ms 以下 | 31–32 | 226.65 MiB |
+| level4-1 | 1,932 ms | 1,931 ms | 60.00 | 17.64 ms 以下 | 0 | 226.18 MiB |
 
 ## 判讀
 
 ### 幀率
 
-所有場景皆接近相同的約 74 FPS，符合 VSync 下的顯示更新率限制。P95 幀時間相近，沒有場景在閒置狀態出現持續性掉幀。
+所有場景都受 VSync 限制在本輪顯示器的 60 Hz，P95 幀時間相近，沒有場景在閒置狀態出現持續性掉幀。前一日基準約為 74 FPS，是顯示器更新率狀態不同，不能把 74 與 60 直接解讀為效能退步。
 
-Main Thread recorder 約 13.5 ms，當中包含等待 VSync 的時間，不能解讀成 CPU 每幀真的忙碌 13.5 ms。要分析實際 CPU 熱點，後續仍需在關閉 VSync或使用 Unity Profiler Timeline 的情境下量測。
+Main Thread recorder 包含等待 VSync 的時間，不能解讀成 CPU 每幀都處於滿載；本報告主要以相同設定下的場景相對差異判讀。
 
 ### GC allocation
 
-`level3-1` 的 358–359 bytes/frame 最高，其次是 `level2` 的 182 bytes/frame 與 `level1` 的 156–157 bytes/frame。現有腳本會在 `Update` 中持續執行 `ToString()` 與 UI 文字寫入，與此結果吻合。
+數值不變時重複寫入 UI 文字與 HP 動畫的程式已改為狀態變更時才更新。此修正讓倒數計時場景 `level4-1` 穩定降至 0 B/frame，也避免遊玩期間不必要的 Animator 重播。
 
-這些數值很小，短期不會造成明顯卡頓，但可安全改為「數值變更時才更新」，目標是讓一般遊玩時接近 0 bytes/frame。benchmark 本身也會產生少量監測成本，因此應以修正前後相同工具的相對差異為準。
+其他三個主要關卡仍有低量配置，且數值大致隨場景系統複雜度增加。相同工具重測沒有顯示這些配置會造成幀率或記憶體持續惡化，因此第三階段不再為追求數字歸零而冒險改動角色物理或第三方套件。後續新增功能若使配置明顯高於此基準，應再用 Profiler Timeline 追查呼叫堆疊。
 
 ### 記憶體
 
-`level1` 的 total allocated 峰值最高，第一輪 237.97 MiB、第二輪 239.28 MiB。其他遊戲場景大多在 226–229 MiB。
+優化後 `level1` total allocated 峰值由約 239.57 MiB 降至 238.06 MiB。第二輪 reserved memory 在 `level1` 到達約 367.27 MiB 後保持不變，較符合 Unity allocator 擴充後保留記憶體，而不是每換一次場景就無限增加的洩漏。
 
-第二輪各場景配置量與第一輪接近；reserved memory 在第二輪 `level1` 到達 370.91 MiB 後保持不變。這比較符合 Unity allocator 擴充後保留記憶體，而不是每換一次場景就無限增加的洩漏。
+### 載入時間與素材依賴
 
-### 載入時間
+Unity `AssetDatabase` 稽核顯示，原始 `level1` 有 2,173 個依賴，明顯高於其他代表場景的 462–777 個。主因是 226 張 1920×500、60 FPS 的舌頭背景逐格動畫。改為 30 FPS 後：
 
-`level1`、`level3-1`、`level2` 依序最慢，而且第二輪沒有明顯改善，表示主要成本很可能是場景物件／素材反序列化與初始化，不只是首次讀取磁碟。
+- 動畫參照影格：226 → 113。
+- Level 1 依賴數：2,173 → 2,060。
+- 來源依賴總量：約 206 MiB → 151 MiB。
+- 第二輪載入：5,517 ms → 5,265 ms。
 
-後續應使用 Editor dependency audit 與 Profiler Loading 模組拆分：
+改善幅度約 4.6%，證明大量獨立 Sprite 是載入成本的一部分，但不是唯一成本。剩餘約 5.3 秒屬大型場景的可重現載入成本；若未來要進一步縮短，應將這類逐格背景改成影片、圖集或可串流資源，而不是再降低單張解析度。
 
-1. `level1` 的場景物件、Sprite／Animator 依賴及 `Start` 初始化。
-2. 是否可在教學場景期間使用 `LoadSceneAsync` 預載下一關。
-3. 是否有單一場景載入未使用的大型貼圖或動畫資源。
+## 穩定性與壓力驗證
+
+最終 PlayMode 為 11/11 通過，包含：
+
+- 23 個正式 Build Settings 場景全部可載入。
+- 開場、主選單、四關入口與完成後結局流程。
+- 暫停／繼續／回首頁、死亡／重試、Boss 出口與第四關逾時。
+- 快速連按場景切換與倒數跨越零值回歸。
+- 四個主要關卡在 2 倍遊戲速度下連續執行；Level 1 敵方投射物縮短至 0.05 秒生成並啟動現有粒子系統。
+
+壓力測試期間沒有未預期 Error 或 Exception。
 
 ## 量測限制
 
-- 場景在無人工輸入的閒置狀態取樣，尚未涵蓋敵人密集、Boss 戰、粒子大量出現與快速移動。
+- 自動壓力回歸能抓例外與狀態錯誤，但不等同真人完整操作和主觀手感驗收。
 - Development Build 有 Profiler 與除錯開銷；Release Build 通常會更快。
-- 最低 FPS 由單一最差幀換算，容易受排程或場景內週期性工作影響，不應單獨作為玩家體感結論。
-- 本報告適合作為後續優化的可重複比較基準，不取代完整人工遊玩與 Unity Profiler Timeline 分析。
+- 最低 FPS 容易受單幀排程影響，因此本報告主要使用平均與 P95。
+- 30 FPS 舌頭背景已通過載入、建置與流程測試；動態觀感仍應在後續畫面適配階段一併做人工視覺驗收。
