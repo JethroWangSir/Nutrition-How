@@ -11,7 +11,9 @@
 - Git LFS: 大型圖片與影片素材
 - 目標平台: Apple Silicon Mac（`arm64`）
 - 已驗證開場、選單、四個關卡流程及全部 23 個建置場景
-- 執行效能、記憶體與程式穩定性第三階段已完成，PlayMode 11/11 通過
+- 執行效能、記憶體與程式穩定性第三階段已完成
+- macOS 顯示、視窗與輸入相容性第四階段已完成，PlayMode 13/13 通過
+- 1024×768、1280×800、1920×1080 共 69 張場景視覺回歸通過
 
 ## 已完成修復
 
@@ -70,3 +72,10 @@ Apple Developer 帳號與簽署憑證。
 [`Docs/PERFORMANCE_BASELINE.md`](Docs/PERFORMANCE_BASELINE.md)。
 
 在 Unity 選擇 **Tools > Nutrition HOW > Audit Scene Dependencies**，可重新輸出場景素材依賴稽核，協助追查大型場景的載入成本。
+
+## macOS 顯示相容性
+
+遊玩關卡會維持中央 4:3 構圖；選單、教學與影片依原始素材維持 16:9，
+不同視窗比例以置中黑邊補足，不會拉伸或顯示額外關卡區域。顯示策略、
+輸入調整與多解析度驗證方式請參考
+[`Docs/MAC_DISPLAY_COMPATIBILITY.md`](Docs/MAC_DISPLAY_COMPATIBILITY.md)。

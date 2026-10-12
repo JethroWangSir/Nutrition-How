@@ -25,6 +25,15 @@ public static class NutritionHowBuild
             BuildOptions.AllowDebugging);
     }
 
+    [MenuItem("Build/Nutrition HOW/macOS Apple Silicon Visual Validation")]
+    public static void BuildMacArm64VisualValidation()
+    {
+        BuildMacArm64(
+            BuildOptions.CompressWithLz4 |
+            BuildOptions.Development |
+            BuildOptions.AllowDebugging);
+    }
+
     private static void BuildMacArm64(BuildOptions options)
     {
         ConfigureArm64Architecture();

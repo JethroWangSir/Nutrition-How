@@ -74,8 +74,13 @@ public class gamepadCursorController : MonoBehaviour
         deltaValue *= cursorSpeed * Time.deltaTime;
         Vector2 currentPosition = virtualMouse.position.ReadValue();
         Vector2 newPosition = currentPosition + deltaValue;
-        newPosition.x = Mathf.Clamp(newPosition.x, paddind, Screen.width - paddind);
-        newPosition.y = Mathf.Clamp(newPosition.y, paddind, Screen.height - paddind);
+        Rect safeArea = LegacyDisplayAdapter.SafeAreaPixels;
+        if(safeArea.width<=0f || safeArea.height<=0f)
+        {
+            safeArea = new Rect(0f,0f,Screen.width,Screen.height);
+        }
+        newPosition.x = Mathf.Clamp(newPosition.x, safeArea.xMin+paddind, safeArea.xMax-paddind);
+        newPosition.y = Mathf.Clamp(newPosition.y, safeArea.yMin+paddind, safeArea.yMax-paddind);
         InputState.Change(virtualMouse.position, newPosition);
         InputState.Change(virtualMouse.delta, deltaValue);
         bool aButtonIsPressed = Gamepad.current.aButton.IsPressed();

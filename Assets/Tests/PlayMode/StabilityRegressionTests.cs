@@ -54,6 +54,64 @@ public class StabilityRegressionTests
         UnityEngine.Object.DestroyImmediate(loaderObject);
     }
 
+    [Test]
+    public void LegacyDisplayAdapterCalculatesCenteredFourByThreeViewport()
+    {
+        Type adapterType = FindRuntimeType("LegacyDisplayAdapter");
+        Assert.IsNotNull(adapterType);
+        MethodInfo calculateViewport = adapterType.GetMethod(
+            "CalculateViewport",
+            BindingFlags.Static | BindingFlags.Public,
+            null,
+            new[] { typeof(int),typeof(int) },
+            null);
+        Assert.IsNotNull(calculateViewport);
+
+        Rect wideViewport = (Rect)calculateViewport.Invoke(null,new object[] { 1280,800 });
+        Assert.That(wideViewport.x,Is.EqualTo(1f/12f).Within(0.0001f));
+        Assert.That(wideViewport.y,Is.EqualTo(0f).Within(0.0001f));
+        Assert.That(wideViewport.width,Is.EqualTo(5f/6f).Within(0.0001f));
+        Assert.That(wideViewport.height,Is.EqualTo(1f).Within(0.0001f));
+
+        Rect tallViewport = (Rect)calculateViewport.Invoke(null,new object[] { 800,800 });
+        Assert.That(tallViewport.x,Is.EqualTo(0f).Within(0.0001f));
+        Assert.That(tallViewport.y,Is.EqualTo(0.125f).Within(0.0001f));
+        Assert.That(tallViewport.width,Is.EqualTo(1f).Within(0.0001f));
+        Assert.That(tallViewport.height,Is.EqualTo(0.75f).Within(0.0001f));
+    }
+
+    [Test]
+    public void LegacyDisplayAdapterPreservesAuthoredSceneAspect()
+    {
+        Type adapterType = FindRuntimeType("LegacyDisplayAdapter");
+        MethodInfo getTargetAspect = adapterType.GetMethod(
+            "GetTargetAspect",
+            BindingFlags.Static | BindingFlags.Public);
+        MethodInfo calculateViewport = adapterType.GetMethod(
+            "CalculateViewport",
+            BindingFlags.Static | BindingFlags.Public,
+            null,
+            new[] { typeof(int),typeof(int),typeof(float) },
+            null);
+
+        Assert.That((float)getTargetAspect.Invoke(null,new object[] { "level1" }),
+            Is.EqualTo(4f/3f).Within(0.0001f));
+        Assert.That((float)getTargetAspect.Invoke(null,new object[] { "level4-2" }),
+            Is.EqualTo(4f/3f).Within(0.0001f));
+        Assert.That((float)getTargetAspect.Invoke(null,new object[] { "menu" }),
+            Is.EqualTo(16f/9f).Within(0.0001f));
+        Assert.That((float)getTargetAspect.Invoke(null,new object[] { "instruction1" }),
+            Is.EqualTo(16f/9f).Within(0.0001f));
+
+        Rect viewport = (Rect)calculateViewport.Invoke(
+            null,
+            new object[] { 1280,800,16f/9f });
+        Assert.That(viewport.x,Is.EqualTo(0f).Within(0.0001f));
+        Assert.That(viewport.y,Is.EqualTo(0.05f).Within(0.0001f));
+        Assert.That(viewport.width,Is.EqualTo(1f).Within(0.0001f));
+        Assert.That(viewport.height,Is.EqualTo(0.9f).Within(0.0001f));
+    }
+
     private static Type FindRuntimeType(string typeName)
     {
         return AppDomain.CurrentDomain.GetAssemblies()

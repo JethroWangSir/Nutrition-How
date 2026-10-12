@@ -10,7 +10,7 @@ public class cursorController : MonoBehaviour
     {
         controls = new PlayerInputActions();
         ChangeCursor(cursor);
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.None;
     }
     private void OnEnable()
     {
@@ -45,5 +45,12 @@ public class cursorController : MonoBehaviour
     {
         // Vector2 hotspot = new Vector2(cursorType.width/2, cursorType.height/2);
         Cursor.SetCursor(cursorType, Vector2.zero, CursorMode.Auto);
+    }
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if(!hasFocus)
+        {
+            Cursor.visible=true;
+        }
     }
 }
