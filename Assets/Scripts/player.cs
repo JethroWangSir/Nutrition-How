@@ -19,6 +19,8 @@ public class player : MonoBehaviour
     public float hSpeed,vSpeed;
     public float hForce,jumpForce,bumpForce,hurtForce;
     public float fallMultiplier,lowJumpMultiplier,jumpMultiplier;
+    [Min(0f)] public float coyoteTime=0.12f;
+    [Min(0f)] public float jumpBufferTime=0.12f;
     public int collections;
     public Text collectionsNum;
     public GameObject bullet;
@@ -49,6 +51,10 @@ public class player : MonoBehaviour
     private bool winAnimationPlayed;
     private int displayedHp=int.MinValue;
     private int displayedCollections=int.MinValue;
+    private float coyoteTimer;
+    private float jumpBufferTimer;
+    private bool jumpHeld;
+    private bool jumpedSinceLastGrounding;
     private void Awake()
     {
         controls = new PlayerInputActions();
@@ -58,7 +64,7 @@ public class player : MonoBehaviour
         controls.Player.Move.canceled += ctx => verticalMove = Vector2.zero;
         controls.Player.Crouch.performed += ctx => Crouch();
         controls.Player.Crouch.canceled += ctx => CrouchCancel();
-        controls.Player.Jump.performed += ctx => JumpMario();
+        controls.Player.Jump.performed += ctx => QueueJump();
         controls.Player.Jump.canceled += ctx => JumpMarioCancel();
         controls.Player.Throw.started += ctx => Throw();
         controls.Player.Sprint.started += ctx => Sprint();
@@ -121,8 +127,10 @@ public class player : MonoBehaviour
     void FixedUpdate()
     {
         isGround=Physics2D.OverlapCircle(groundCheck.position,checkRadius,ground)||Physics2D.OverlapCircle(groundCheck.position,checkRadius,acid);
+        UpdateJumpGraceTimers(Time.fixedDeltaTime);
         if(!isHurt && hp>0)
         {
+            TryBufferedJump();
             Movement();
         }
         Dash();
@@ -239,18 +247,57 @@ public class player : MonoBehaviour
             isJump=false;
         }
     }
-    void JumpMario()
+    void QueueJump()
     {
-        if(isGround && !isCrouch)
+        if(Time.timeScale<=0f)
         {
-            anim.SetBool("jumping",true);
-            soundmanager.sound_instance.Jumpaudio();
-            isJump=true;
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            return;
         }
+
+        jumpHeld=true;
+        jumpBufferTimer=jumpBufferTime;
+    }
+    void UpdateJumpGraceTimers(float deltaTime)
+    {
+        bool landed=isGround && rb.linearVelocity.y<=0f;
+        if(landed)
+        {
+            jumpedSinceLastGrounding=false;
+        }
+
+        if(isGround && !jumpedSinceLastGrounding)
+        {
+            coyoteTimer=coyoteTime;
+        }
+        else
+        {
+            coyoteTimer=Mathf.Max(0f,coyoteTimer-deltaTime);
+        }
+
+        jumpBufferTimer=Mathf.Max(0f,jumpBufferTimer-deltaTime);
+    }
+    void TryBufferedJump()
+    {
+        if(jumpBufferTimer<=0f || coyoteTimer<=0f || isCrouch || isDashing)
+        {
+            return;
+        }
+
+        anim.SetBool("jumping",true);
+        if(soundmanager.sound_instance!=null)
+        {
+            soundmanager.sound_instance.Jumpaudio();
+        }
+        isJump=true;
+        jumpedSinceLastGrounding=true;
+        coyoteTimer=0f;
+        jumpBufferTimer=0f;
+        float initialJumpSpeed=jumpHeld ? jumpForce : jumpForce*jumpMultiplier;
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x,initialJumpSpeed);
     }
     void JumpMarioCancel()
     {
+        jumpHeld=false;
         isJump=false;
         if(rb.linearVelocity.y>0f)
         {

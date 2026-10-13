@@ -14,7 +14,8 @@
 - 執行效能、記憶體與程式穩定性第三階段已完成
 - macOS 顯示、視窗與輸入相容性第四階段已完成
 - 1024×768、1280×800、1920×1080 共 69 張場景視覺回歸通過
-- 第五階段「遊戲體驗與內容品質」的工程項目已完成；本輪進度可跨啟動保存，PlayMode 18/18 通過
+- 第五階段「遊戲體驗與內容品質」的工程項目已完成；本輪進度可跨啟動保存
+- 第六階段「商業級玩法與細節精修」已開始；第一批平台跳躍容錯完成，PlayMode 20/20 通過
 
 ## 已完成修復
 
@@ -83,3 +84,6 @@ Apple Developer 帳號與簽署憑證。
 
 第五階段的問題分級、處理順序與驗證紀錄請參考
 [`Docs/GAMEPLAY_EXPERIENCE_AUDIT.md`](Docs/GAMEPLAY_EXPERIENCE_AUDIT.md)。
+
+第六階段的市場體驗差距、優先順序與分批驗證請參考
+[`Docs/COMMERCIAL_GAMEPLAY_POLISH.md`](Docs/COMMERCIAL_GAMEPLAY_POLISH.md)。

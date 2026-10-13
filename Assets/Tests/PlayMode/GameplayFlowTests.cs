@@ -236,6 +236,52 @@ public class GameplayFlowTests
         Assert.AreEqual(0f, Time.timeScale, "Gameplay continued behind the timeout dialog.");
     }
 
+    [UnityTest]
+    [Order(10)]
+    public IEnumerator PlatformJumpBuffersInputUntilLanding()
+    {
+        yield return LoadScene(NutritionHowScenes.Level1);
+        MonoBehaviour activePlayer = RequireBehaviour("player", "level 1 player");
+        activePlayer.enabled = false;
+        Rigidbody2D body = activePlayer.GetComponent<Rigidbody2D>();
+        body.linearVelocity = Vector2.zero;
+
+        SetField(activePlayer, "isGround", false);
+        Invoke(activePlayer, "QueueJump");
+        Invoke(activePlayer, "UpdateJumpGraceTimers", 0.02f);
+        Assert.Greater((float)GetField(activePlayer, "jumpBufferTimer"), 0f);
+
+        SetField(activePlayer, "isGround", true);
+        Invoke(activePlayer, "UpdateJumpGraceTimers", 0.02f);
+        Invoke(activePlayer, "TryBufferedJump");
+
+        Assert.Greater(body.linearVelocity.y, 0f,
+            "A jump pressed just before landing was not performed on landing.");
+        Assert.AreEqual(0f, (float)GetField(activePlayer, "jumpBufferTimer"));
+    }
+
+    [UnityTest]
+    [Order(11)]
+    public IEnumerator PlatformJumpAllowsBriefCoyoteTimeAfterLeavingGround()
+    {
+        yield return LoadScene(NutritionHowScenes.Level1);
+        MonoBehaviour activePlayer = RequireBehaviour("player", "level 1 player");
+        activePlayer.enabled = false;
+        Rigidbody2D body = activePlayer.GetComponent<Rigidbody2D>();
+        body.linearVelocity = Vector2.zero;
+
+        SetField(activePlayer, "isGround", true);
+        Invoke(activePlayer, "UpdateJumpGraceTimers", 0.02f);
+        SetField(activePlayer, "isGround", false);
+        Invoke(activePlayer, "UpdateJumpGraceTimers", 0.04f);
+        Invoke(activePlayer, "QueueJump");
+        Invoke(activePlayer, "TryBufferedJump");
+
+        Assert.Greater(body.linearVelocity.y, 0f,
+            "A jump pressed just after leaving a platform was not accepted.");
+        Assert.AreEqual(0f, (float)GetField(activePlayer, "coyoteTimer"));
+    }
+
     private static IEnumerator LoadScene(int buildIndex)
     {
         ResetProgress();
