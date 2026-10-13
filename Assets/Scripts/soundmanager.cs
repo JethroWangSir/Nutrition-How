@@ -39,120 +39,115 @@ public class soundmanager : MonoBehaviour
     {
         sound_instance=this;
     }
+    private void OnDestroy()
+    {
+        if(sound_instance==this)
+        {
+            sound_instance=null;
+        }
+    }
     public void Jumpaudio()
     {
-        audioSource.clip=jumpAudio;
-        audioSource.Play();
+        PlayEffect(jumpAudio);
     }
     public void Hurtaudio()
     {
-        audioSource.clip=hurtAudio;
-        audioSource.Play();
+        PlayEffect(hurtAudio);
     }
     public void Throwaudio()
     {
-        audioSource.clip=throwAudio;
-        audioSource.Play();
+        PlayEffect(throwAudio);
     }
     public void Flooraudio()
     {
-        audioSource.clip=floorAudio;
-        audioSource.Play();
+        PlayEffect(floorAudio);
     }
     public void Attackaudio()
     {
-        audioSource.clip=attackAudio;
-        audioSource.Play();
+        PlayEffect(attackAudio);
     }
     public void Openaudio()
     {
-        audioSource.clip=openAudio;
-        audioSource.Play();
+        PlayEffect(openAudio);
     }
     public void Hoveraudio()
     {
-        audioSource.clip=hoverAudio;
-        audioSource.Play();
+        PlayEffect(hoverAudio);
     }
 
     public void Pressaudio()
     {
-        audioSource.clip=pressAudio;
-        audioSource.Play();
+        PlayEffect(pressAudio);
     }
     public void Correctaudio()
     {
-        audioSource.clip=correctAudio;
-        audioSource.Play();
+        PlayEffect(correctAudio);
     }
     public void Wrongaudio()
     {
-        audioSource.clip=wrongAudio;
-        audioSource.Play();
+        PlayEffect(wrongAudio);
     }
     public void Hurt0audio()
     {
-        audioSource.clip=hurt0Audio;
-        audioSource.Play();
+        PlayEffect(hurt0Audio);
     }
     public void Hurt1audio()
     {
-        audioSource.clip=hurt1Audio;
-        audioSource.Play();
+        PlayEffect(hurt1Audio);
     }
     public void Hurt2audio()
     {
-        audioSource.clip=hurt2Audio;
-        audioSource.Play();
+        PlayEffect(hurt2Audio);
     }
     public void Cakeaudio()
     {
-        audioSource.clip=cakeAudio;
-        audioSource.Play();
+        PlayEffect(cakeAudio);
     }
     public void SwallowAudio()
     {
-        audioSource.clip=swallowAudio;
-        audioSource.Play();
+        PlayEffect(swallowAudio);
     }
     public void HeartAudio()
     {
-        audioSource.clip=heartAudio;
-        audioSource.Play();
+        PlayEffect(heartAudio);
     }
     public void FlagAudio()
     {
-        audioSource.clip=flagAudio;
-        audioSource.Play();
+        PlayEffect(flagAudio);
     }
     public void BiggerAudio()
     {
-        audioSource.clip=biggerAudio;
-        audioSource.Play();
+        PlayEffect(biggerAudio);
     }
     public void WarningAudio()
     {
-        audioSource.clip=warningAudio;
-        audioSource.Play();
+        PlayEffect(warningAudio);
     }
     public void CrackAudio()
     {
-        audioSource.clip=crackAudio;
-        audioSource.Play();
+        PlayEffect(crackAudio);
     }
     public void SwimAudio()
     {
-        audioSource.clip=swimAudio;
-        audioSource.Play();
+        PlayEffect(swimAudio);
     }
     public void CounterAudio()
     {
-        audioSource.clip=counterAudio;
-        audioSource.Play();
+        PlayEffect(counterAudio);
     }
     public void DoorAudio()
     {
-        audioSource.clip=doorAudio;
-        audioSource.Play();
+        PlayEffect(doorAudio);
+    }
+
+    private void PlayEffect(AudioClip clip)
+    {
+        if(audioSource==null || clip==null)
+        {
+            return;
+        }
+        // UI and gameplay events can happen close together. PlayOneShot keeps
+        // the earlier feedback audible instead of replacing it mid-sound.
+        audioSource.PlayOneShot(clip);
     }
 }

@@ -708,8 +708,8 @@ MonoBehaviour:
   speed: 125
   accelerate: 1.5
   decelerate: 0
-  jumpforce: 2
-  hurtforce: 1.5
+  jumpForce: 2
+  hurtForce: 1.5
   collections: 0
   collectionsnum: {fileID: 0}
   hp: 0

@@ -12209,11 +12209,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7235133243977382300, guid: b36dd8d82077bfa49af62168f75a954c,
         type: 3}
-      propertyPath: jumpforce
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7235133243977382300, guid: b36dd8d82077bfa49af62168f75a954c,
-        type: 3}
       propertyPath: loseDialog
       value: 
       objectReference: {fileID: 1005774635}

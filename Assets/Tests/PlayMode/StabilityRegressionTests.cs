@@ -135,6 +135,29 @@ public class StabilityRegressionTests
         UnityEngine.Object.DestroyImmediate(managerObject);
     }
 
+    [Test]
+    public void SoundEffectsDoNotReplaceAnEffectAlreadyAssignedToTheSource()
+    {
+        GameObject managerObject = new GameObject("SoundManager",typeof(AudioSource));
+        AudioSource source = managerObject.GetComponent<AudioSource>();
+        AudioClip existingClip = AudioClip.Create("Existing",441,1,44100,false);
+        AudioClip jumpClip = AudioClip.Create("Jump",441,1,44100,false);
+        source.clip = existingClip;
+
+        MonoBehaviour manager = AddRuntimeComponent(managerObject,"soundmanager");
+        SetField(manager,"audioSource",source);
+        SetField(manager,"jumpAudio",jumpClip);
+
+        Invoke(manager,"Jumpaudio");
+
+        Assert.AreSame(existingClip,source.clip,
+            "Playing a new effect replaced the AudioSource clip instead of overlapping it.");
+
+        UnityEngine.Object.DestroyImmediate(managerObject);
+        UnityEngine.Object.DestroyImmediate(existingClip);
+        UnityEngine.Object.DestroyImmediate(jumpClip);
+    }
+
     private static Type FindRuntimeType(string typeName)
     {
         return AppDomain.CurrentDomain.GetAssemblies()

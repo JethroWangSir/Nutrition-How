@@ -92,10 +92,6 @@ public class ship4 : MonoBehaviour
         if(timeLeft>0f)
         {
             timeLeft-=Time.deltaTime;
-            if(timeLeft<=5f)
-            {
-                // soundmanager.sound_instance.CounterAudio();
-            }
             UpdateCountdownImage(GetCountdownImageIndex(timeLeft));
         }else
         {
@@ -131,6 +127,10 @@ public class ship4 : MonoBehaviour
             return;
         }
         countdownImageIndex=activeIndex;
+        if(activeIndex>=0 && soundmanager.sound_instance!=null)
+        {
+            soundmanager.sound_instance.CounterAudio();
+        }
         for(int i=0;i<timeImage.Length;i++)
         {
             timeImage[i].SetActive(i==activeIndex);
@@ -227,22 +227,18 @@ public class ship4 : MonoBehaviour
             soundmanager.sound_instance.CrackAudio();
             if (collision.contacts[0].normal.y == -1)//从上方碰撞
             {
-                Debug.Log("up");
                 rb.AddForce(new Vector2(0f,-hurtforce),ForceMode2D.Impulse);
             }
             else if(collision.contacts[0].normal.y == 1)//从下方碰撞
             {
-                Debug.Log("down");
                 rb.AddForce(new Vector2(0f,hurtforce),ForceMode2D.Impulse);
             }
             else if (collision.contacts[0].normal.x == -1)//左边碰撞
             {
-                Debug.Log("right");
                 rb.AddForce(new Vector2(-hurtforce,0f),ForceMode2D.Impulse);
             }
             else if (collision.contacts[0].normal.x == 1)//右边碰撞
             {
-                Debug.Log("left");
                 rb.AddForce(new Vector2(hurtforce,0f),ForceMode2D.Impulse);
             }
         }

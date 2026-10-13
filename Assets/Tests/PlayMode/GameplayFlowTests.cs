@@ -190,12 +190,33 @@ public class GameplayFlowTests
 
     [UnityTest]
     [Order(8)]
+    public IEnumerator ThirdLevelShipRetainsUsableFlightAndDamageValues()
+    {
+        yield return LoadScene(NutritionHowScenes.Level3Part2);
+        MonoBehaviour levelShip = RequireBehaviour("ship", "level 3 ship");
+
+        Assert.Greater((float)GetField(levelShip, "jumpForce"), 0f);
+        Assert.Greater((float)GetField(levelShip, "hurtForce"), 0f);
+        Assert.Greater((float)GetField(levelShip, "speed"), 0f);
+        Assert.Greater((int)GetField(levelShip, "max_hp"), 0);
+    }
+
+    [UnityTest]
+    [Order(9)]
     public IEnumerator FourthLevelTimeoutShowsLoseDialogAndStopsWaterTrigger()
     {
         yield return LoadScene(NutritionHowScenes.Level4Part1);
         MonoBehaviour levelShip = RequireBehaviour("ship4", "level 4 ship");
         GameObject loseDialog = (GameObject)GetField(levelShip, "loseDialog");
         GameObject water = (GameObject)GetField(levelShip, "water");
+
+        SetField(levelShip, "timeLeft", 5.1f);
+        Invoke(levelShip, "Timer");
+        Assert.AreEqual(4, (int)GetField(levelShip, "countdownImageIndex"));
+
+        SetField(levelShip, "timeLeft", 4.1f);
+        Invoke(levelShip, "Timer");
+        Assert.AreEqual(3, (int)GetField(levelShip, "countdownImageIndex"));
 
         SetField(levelShip, "timeLeft", 0f);
         Invoke(levelShip, "Timer");
