@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class pass : MonoBehaviour
 {
+    private static readonly string[] ProgressKeys =
+    {
+        "progress.level1Complete",
+        "progress.level2Complete",
+        "progress.level3Complete",
+        "progress.level4Complete"
+    };
     static public bool level1Pass,level2Pass,level3Pass,level4Pass;
     public GameObject[] levelPassAnim;
     public float timeLeft,time;
@@ -12,6 +19,7 @@ public class pass : MonoBehaviour
     private bool endingScheduled;
     private void Awake()
     {
+        LoadProgress();
         controls = new PlayerInputActions();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         controls.Player.NoLevelPass.started += ctx => NoLevelPass();
@@ -71,13 +79,61 @@ public class pass : MonoBehaviour
         NoLevelPass();
         GameObject.Find("levelLoader").GetComponent<levelLoader>().LoadSomeLevel(NutritionHowScenes.Ending);
     }
+
+    public static void MarkLevelComplete(int levelNumber)
+    {
+        if(levelNumber<1 || levelNumber>ProgressKeys.Length)
+        {
+            Debug.LogError($"Cannot complete level {levelNumber}; expected 1-{ProgressKeys.Length}.");
+            return;
+        }
+
+        SetLevelComplete(levelNumber,true);
+        PlayerPrefs.SetInt(ProgressKeys[levelNumber-1],1);
+        PlayerPrefs.Save();
+    }
+
+    public static void LoadProgress()
+    {
+        for(int index=0;index<ProgressKeys.Length;index++)
+        {
+            SetLevelComplete(index+1,PlayerPrefs.GetInt(ProgressKeys[index],0)==1);
+        }
+    }
+
+    public static void ClearProgress()
+    {
+        for(int index=0;index<ProgressKeys.Length;index++)
+        {
+            PlayerPrefs.DeleteKey(ProgressKeys[index]);
+            SetLevelComplete(index+1,false);
+        }
+        PlayerPrefs.Save();
+    }
+
+    private static void SetLevelComplete(int levelNumber,bool complete)
+    {
+        switch(levelNumber)
+        {
+            case 1:
+                level1Pass=complete;
+                break;
+            case 2:
+                level2Pass=complete;
+                break;
+            case 3:
+                level3Pass=complete;
+                break;
+            case 4:
+                level4Pass=complete;
+                break;
+        }
+    }
+
     void NoLevelPass()
     {
         CancelInvoke(nameof(GotoEnding));
         endingScheduled=false;
-        level1Pass=false;
-        level2Pass=false;
-        level3Pass=false;
-        level4Pass=false;
+        ClearProgress();
     }
 }

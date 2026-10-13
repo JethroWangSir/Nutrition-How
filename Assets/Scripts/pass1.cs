@@ -17,7 +17,7 @@ public class pass1 : MonoBehaviour
     {
         if(target!=null && target.Pass())
         {
-            pass.level1Pass=true;
+            pass.MarkLevelComplete(1);
             enabled=false;
         }
     }

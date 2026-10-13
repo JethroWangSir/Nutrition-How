@@ -33,7 +33,16 @@ public class GameplayFlowTests
         Type progressType = FindRuntimeType("pass");
         if (progressType != null)
         {
-            SetProgress(progressType, false);
+            MethodInfo clearProgress = progressType.GetMethod(
+                "ClearProgress",
+                BindingFlags.Static | BindingFlags.Public);
+            if(clearProgress != null)
+            {
+                clearProgress.Invoke(null,null);
+            }else
+            {
+                SetProgress(progressType, false);
+            }
         }
     }
 

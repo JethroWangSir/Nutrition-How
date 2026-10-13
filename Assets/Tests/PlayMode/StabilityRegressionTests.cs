@@ -12,6 +12,7 @@ public class StabilityRegressionTests
     {
         Time.timeScale = 1f;
         PlayerPrefs.DeleteKey("settings.masterVolumeDb");
+        InvokeStatic(FindRuntimeType("pass"),"ClearProgress");
     }
 
     [Test]
@@ -158,6 +159,33 @@ public class StabilityRegressionTests
         UnityEngine.Object.DestroyImmediate(jumpClip);
     }
 
+    [Test]
+    public void CampaignProgressPersistsAcrossLoadsAndClearsAfterCompletion()
+    {
+        Type progressType = FindRuntimeType("pass");
+        InvokeStatic(progressType,"ClearProgress");
+
+        InvokeStatic(progressType,"MarkLevelComplete",1);
+        InvokeStatic(progressType,"MarkLevelComplete",3);
+        SetStaticField(progressType,"level1Pass",false);
+        SetStaticField(progressType,"level3Pass",false);
+
+        InvokeStatic(progressType,"LoadProgress");
+
+        Assert.IsTrue((bool)GetStaticField(progressType,"level1Pass"));
+        Assert.IsFalse((bool)GetStaticField(progressType,"level2Pass"));
+        Assert.IsTrue((bool)GetStaticField(progressType,"level3Pass"));
+        Assert.IsFalse((bool)GetStaticField(progressType,"level4Pass"));
+
+        InvokeStatic(progressType,"ClearProgress");
+        SetStaticField(progressType,"level1Pass",true);
+        SetStaticField(progressType,"level3Pass",true);
+        InvokeStatic(progressType,"LoadProgress");
+
+        Assert.IsFalse((bool)GetStaticField(progressType,"level1Pass"));
+        Assert.IsFalse((bool)GetStaticField(progressType,"level3Pass"));
+    }
+
     private static Type FindRuntimeType(string typeName)
     {
         return AppDomain.CurrentDomain.GetAssemblies()
@@ -197,5 +225,33 @@ public class StabilityRegressionTests
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         Assert.IsNotNull(field, $"{target.GetType().Name}.{fieldName} is missing.");
         field.SetValue(target, value);
+    }
+
+    private static void InvokeStatic(Type type,string methodName,params object[] arguments)
+    {
+        Assert.IsNotNull(type,$"Runtime type for {methodName} is missing.");
+        MethodInfo method = type.GetMethod(
+            methodName,
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.IsNotNull(method,$"{type.Name}.{methodName} is missing.");
+        method.Invoke(null,arguments);
+    }
+
+    private static object GetStaticField(Type type,string fieldName)
+    {
+        FieldInfo field = type.GetField(
+            fieldName,
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.IsNotNull(field,$"{type.Name}.{fieldName} is missing.");
+        return field.GetValue(null);
+    }
+
+    private static void SetStaticField(Type type,string fieldName,object value)
+    {
+        FieldInfo field = type.GetField(
+            fieldName,
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.IsNotNull(field,$"{type.Name}.{fieldName} is missing.");
+        field.SetValue(null,value);
     }
 }
