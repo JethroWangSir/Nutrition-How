@@ -131,6 +131,21 @@ public class GameplayFlowTests
 
     [UnityTest]
     [Order(5)]
+    public IEnumerator DirectSceneLoadWhilePausedRestoresTimeAndCompletesTransition()
+    {
+        yield return LoadScene(NutritionHowScenes.Level1);
+        MonoBehaviour loader = RequireBehaviour("levelLoader", "level loader");
+        SetFloatField(loader, "transitionTime", 0.05f);
+
+        Time.timeScale = 0f;
+        Invoke(loader, "LoadSomeLevel", NutritionHowScenes.Menu);
+
+        yield return WaitForScene(NutritionHowScenes.Menu, "menu requested while paused");
+        Assert.AreEqual(1f, Time.timeScale);
+    }
+
+    [UnityTest]
+    [Order(6)]
     public IEnumerator DeathDialogAppearsAndRestartReloadsTheLevel()
     {
         yield return LoadScene(NutritionHowScenes.Level1);
@@ -142,6 +157,7 @@ public class GameplayFlowTests
         yield return new WaitForSecondsRealtime(1.6f);
 
         Assert.IsTrue(loseDialog.activeSelf, "The death dialog did not appear.");
+        Assert.AreEqual(0f, Time.timeScale, "Gameplay continued behind the failure dialog.");
 
         MonoBehaviour menuController = RequireBehaviour("menu", "level menu");
         SetTransitionTimeToZero();
@@ -157,7 +173,7 @@ public class GameplayFlowTests
     }
 
     [UnityTest]
-    [Order(6)]
+    [Order(7)]
     public IEnumerator BossDefeatOpensTheExitOnce()
     {
         yield return LoadScene(NutritionHowScenes.Level1);
@@ -173,7 +189,7 @@ public class GameplayFlowTests
     }
 
     [UnityTest]
-    [Order(7)]
+    [Order(8)]
     public IEnumerator FourthLevelTimeoutShowsLoseDialogAndStopsWaterTrigger()
     {
         yield return LoadScene(NutritionHowScenes.Level4Part1);
@@ -187,6 +203,7 @@ public class GameplayFlowTests
         Assert.IsTrue(loseDialog.activeSelf, "The timeout dialog did not appear.");
         Assert.IsTrue((bool)GetField(levelShip, "timerExpired"));
         Assert.IsFalse(water.GetComponent<BoxCollider2D>().enabled);
+        Assert.AreEqual(0f, Time.timeScale, "Gameplay continued behind the timeout dialog.");
     }
 
     private static IEnumerator LoadScene(int buildIndex)
@@ -277,13 +294,13 @@ public class GameplayFlowTests
         SetFloatField(loader, "transitionTime", 0f);
     }
 
-    private static void Invoke(MonoBehaviour target, string methodName)
+    private static void Invoke(MonoBehaviour target, string methodName, params object[] arguments)
     {
         MethodInfo method = target.GetType().GetMethod(
             methodName,
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         Assert.IsNotNull(method, $"{target.GetType().Name}.{methodName} is missing.");
-        method.Invoke(target, null);
+        method.Invoke(target, arguments);
     }
 
     private static Type FindRuntimeType(string typeName)

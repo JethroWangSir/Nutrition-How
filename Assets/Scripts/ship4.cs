@@ -33,7 +33,9 @@ public class ship4 : MonoBehaviour
         controls.Player.Move.canceled += ctx => horizontalMove = Vector2.zero;
         controls.Player.Move.performed += ctx => verticalMove = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => verticalMove = Vector2.zero;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         controls.Player.GoGo.started += ctx => GoGo();
+#endif
     }
     void OnEnable()
     {
@@ -107,6 +109,7 @@ public class ship4 : MonoBehaviour
                     waterCollider.enabled=false;
                 }
                 loseDialog.SetActive(true);
+                Time.timeScale=0f;
             }
         }
     }

@@ -13,7 +13,9 @@ public class pass : MonoBehaviour
     private void Awake()
     {
         controls = new PlayerInputActions();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         controls.Player.NoLevelPass.started += ctx => NoLevelPass();
+#endif
     }
     void OnEnable()
     {

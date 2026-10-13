@@ -43,6 +43,10 @@ public class levelLoader : MonoBehaviour
         }
         isLoading=true;
         pendingSceneIndex=levelIndex;
+        // A scene change can be requested from pause, dialog, or failure UI.
+        // Always restore gameplay time here so individual callers cannot leave
+        // the destination scene frozen.
+        Time.timeScale=1f;
         StartCoroutine(LoadLevel(levelIndex));
     }
 
@@ -54,7 +58,9 @@ public class levelLoader : MonoBehaviour
         {
             transition.SetTrigger("start");
         }
-        yield return new WaitForSeconds(transitionTime);
+        // Keep navigation independent from gameplay time. This also prevents a
+        // transition from hanging if another system pauses during the fade.
+        yield return new WaitForSecondsRealtime(transitionTime);
         SceneManager.LoadScene(levelIndex);
         // loadingOperation.allowSceneActivation = true;
     }

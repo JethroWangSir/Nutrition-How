@@ -41,7 +41,9 @@ public class ship : MonoBehaviour
         controls.Player.Move.canceled += ctx => horizontalMove = Vector2.zero;
         controls.Player.Jump.performed += ctx => Jump();
         controls.Player.Jump.canceled += ctx => JumpCancel();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         controls.Player.GoGo.started += ctx => GoGo();
+#endif
     }
     void OnEnable()
     {
@@ -147,6 +149,7 @@ public class ship : MonoBehaviour
     {
         hp=0;
         loseDialog.SetActive(true);
+        Time.timeScale=0f;
     }
 
     void ScheduleLose()

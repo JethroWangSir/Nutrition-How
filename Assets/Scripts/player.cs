@@ -62,7 +62,9 @@ public class player : MonoBehaviour
         controls.Player.Jump.canceled += ctx => JumpMarioCancel();
         controls.Player.Throw.started += ctx => Throw();
         controls.Player.Sprint.started += ctx => Sprint();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         controls.Player.GoGo.started += ctx => GoGo();
+#endif
     }
     void OnEnable()
     {
@@ -394,6 +396,7 @@ public class player : MonoBehaviour
     {
         hp=0;
         loseDialog.SetActive(true);
+        Time.timeScale=0f;
     }
 
     void ScheduleLose()
