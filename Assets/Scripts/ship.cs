@@ -249,11 +249,14 @@ public class ship : MonoBehaviour
         }
         if(collections>=8 && hp>=1)
         {
-            door.SetActive(true);
             if(!winAnimationPlayed)
             {
                 winAnimationPlayed=true;
-                winAnim.Play("win");
+                door.SetActive(true);
+                if(winAnim!=null)
+                {
+                    winAnim.Play("win");
+                }
             }
         }
     }

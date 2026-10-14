@@ -208,6 +208,15 @@ public class GameplayFlowTests
         Assert.Greater((float)GetField(levelShip, "hurtForce"), 0f);
         Assert.Greater((float)GetField(levelShip, "speed"), 0f);
         Assert.Greater((int)GetField(levelShip, "max_hp"), 0);
+
+        GameObject exitDoor = (GameObject)GetField(levelShip, "door");
+        exitDoor.SetActive(false);
+        SetField(levelShip, "collections", 8);
+        Invoke(levelShip, "Collectionsnum");
+
+        Assert.IsTrue(exitDoor.activeSelf, "The collection milestone did not unlock the exit.");
+        Assert.IsTrue((bool)GetField(levelShip, "winAnimationPlayed"),
+            "The collection milestone did not record its one-shot completion feedback.");
     }
 
     [UnityTest]
@@ -280,6 +289,51 @@ public class GameplayFlowTests
         Assert.Greater(body.linearVelocity.y, 0f,
             "A jump pressed just after leaving a platform was not accepted.");
         Assert.AreEqual(0f, (float)GetField(activePlayer, "coyoteTimer"));
+    }
+
+    [UnityTest]
+    [Order(12)]
+    public IEnumerator GameplayCamerasUseModeSpecificMotionComfortZones()
+    {
+        int[] sceneIndexes =
+        {
+            NutritionHowScenes.Level1,
+            NutritionHowScenes.Level2,
+            NutritionHowScenes.Level3Part1,
+            NutritionHowScenes.Level3Part2,
+            NutritionHowScenes.Level4Part1,
+            NutritionHowScenes.Level4Part2
+        };
+        Vector2[] expectedDeadZones =
+        {
+            new Vector2(0.08f,0.04f),
+            new Vector2(0.08f,0.04f),
+            new Vector2(0.08f,0.04f),
+            new Vector2(0.04f,0.08f),
+            new Vector2(0.08f,0.08f),
+            new Vector2(0.08f,0.08f)
+        };
+        Type framingType=FindRuntimeType("Cinemachine.CinemachineFramingTransposer");
+        Assert.IsNotNull(framingType,"Cinemachine framing type is unavailable.");
+
+        for(int index=0;index<sceneIndexes.Length;index++)
+        {
+            yield return LoadScene(sceneIndexes[index]);
+            Scene activeScene=SceneManager.GetActiveScene();
+            Component framing=Resources.FindObjectsOfTypeAll(framingType)
+                .OfType<Component>()
+                .FirstOrDefault(candidate => candidate.gameObject.scene==activeScene);
+            Assert.IsNotNull(framing,$"No gameplay camera framing component in {activeScene.name}.");
+
+            Assert.That(GetFloatField(framing,"m_DeadZoneWidth"),
+                Is.EqualTo(expectedDeadZones[index].x).Within(0.001f),
+                $"Unexpected horizontal camera zone in {activeScene.name}.");
+            Assert.That(GetFloatField(framing,"m_DeadZoneHeight"),
+                Is.EqualTo(expectedDeadZones[index].y).Within(0.001f),
+                $"Unexpected vertical camera zone in {activeScene.name}.");
+            Assert.That(GetFloatField(framing,"m_LookaheadTime"),Is.EqualTo(0f).Within(0.001f),
+                $"Unvalidated lookahead was enabled in {activeScene.name}.");
+        }
     }
 
     private static IEnumerator LoadScene(int buildIndex)
@@ -398,6 +452,15 @@ public class GameplayFlowTests
         FieldInfo field = target.GetType().GetField(fieldName);
         Assert.IsNotNull(field, $"{target.GetType().Name}.{fieldName} is missing.");
         field.SetValue(target, value);
+    }
+
+    private static float GetFloatField(Component target, string fieldName)
+    {
+        FieldInfo field=target.GetType().GetField(
+            fieldName,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.IsNotNull(field,$"{target.GetType().Name}.{fieldName} is missing.");
+        return (float)field.GetValue(target);
     }
 
     private static object GetField(MonoBehaviour target, string fieldName)

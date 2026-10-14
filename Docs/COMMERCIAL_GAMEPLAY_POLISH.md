@@ -64,6 +64,25 @@
 - 鏡頭設定本批只完成場景稽核，沒有在缺乏移動畫面量測時套用通用 Lookahead／Dead Zone，避免不同控制方式出現過度前視或鏡頭晃動。
 - LZ4HC Release Build 成功：398 MB；新產物主執行檔為 `arm64`，App 與執行檔名稱皆為「營養 How 解」，Bundle Identifier 為 `com.jethrowangsir.nutritionhow`，`codesign --verify --deep --strict` 通過。
 
+## 第三批：分玩法鏡頭安定區與完成里程碑
+
+六個遊玩場景原本的 Cinemachine Dead Zone 寬、高皆為 0，角色每個細微位移都會驅動鏡頭。第三批保留原有 1 秒阻尼、視野、置中構圖、Confiner 邊界與零 Lookahead，只依玩法加入小幅安定區：
+
+- `level1`、`level2`、`level3-1` 平台關卡：水平 `0.08`、垂直 `0.04`，降低走路微抖，同時讓跳躍仍能快速取得垂直視野。
+- `level3-2` 自動前進飛船：水平 `0.04`、垂直 `0.08`，保留前進反應並降低上下操作造成的鏡頭拍動。
+- `level4-1`、`level4-2` 自由游動：水平與垂直皆為 `0.08`，讓雙軸移動使用一致的小幅安全區。
+- 未加入未經移動測試的 Lookahead，避免角色動畫或方向切換放大鏡頭抖動。
+
+第三關後半的 8 個收集物門檻也改為一次性完成回饋：出口啟用與 `win` 動畫只在首次達標時執行，後續更新不再重複設定。
+
+### 第三批驗證結果
+
+- Unity Editor（Metal）PlayMode：22/22 通過，0 failed，執行時間 62.25 秒。
+- 新增測試逐一載入六個遊玩場景，直接驗證實際 Cinemachine Dead Zone 及零 Lookahead；第三關出口門檻與一次性完成狀態亦納入回歸測試。
+- 視覺回歸：1024×768、1280×800、1920×1080 各 23 張，共 69 張；4:3 遊玩安全畫面、HUD、角色、飛船及關卡邊界皆無新增裁切或偏移。
+- 第四關起始畫面仍會在擷取時間點顯示既有倒數遮罩，與本批鏡頭設定無關。
+- LZ4HC Release Build 成功：398 MB；主執行檔為 `arm64`，App 與執行檔名稱皆為「營養 How 解」，Bundle Identifier 為 `com.jethrowangsir.nutritionhow`，`codesign --verify --deep --strict` 通過。
+
 ## 階段完成條件
 
 1. 核心控制、鏡頭與回饋的高優先級項目完成。
