@@ -186,6 +186,45 @@ public class StabilityRegressionTests
         Assert.IsFalse((bool)GetStaticField(progressType,"level3Pass"));
     }
 
+    [Test]
+    public void DamagePulseKeepsSpritesVisibleAndRestoresTheirColors()
+    {
+        GameObject root = new GameObject("DamageFeedbackRoot",typeof(SpriteRenderer));
+        GameObject child = new GameObject("DamageFeedbackChild",typeof(SpriteRenderer));
+        child.transform.SetParent(root.transform);
+        SpriteRenderer rootRenderer = root.GetComponent<SpriteRenderer>();
+        SpriteRenderer childRenderer = child.GetComponent<SpriteRenderer>();
+        Color rootColor = new Color(0.8f,0.7f,0.6f,1f);
+        Color childColor = new Color(0.2f,0.3f,0.4f,0.8f);
+        rootRenderer.color=rootColor;
+        childRenderer.color=childColor;
+        childRenderer.enabled=false;
+
+        Type feedbackType=FindRuntimeType("SpriteDamageFeedback");
+        Assert.IsNotNull(feedbackType);
+        object feedback=Activator.CreateInstance(feedbackType,new object[] { root });
+        MethodInfo pulse=feedbackType.GetMethod("Pulse");
+        MethodInfo restore=feedbackType.GetMethod("Restore");
+        Assert.IsNotNull(pulse);
+        Assert.IsNotNull(restore);
+
+        pulse.Invoke(feedback,new object[] { 0.05f });
+
+        Assert.IsTrue(rootRenderer.enabled,"Damage feedback hid the active sprite.");
+        Assert.IsFalse(childRenderer.enabled,"Damage feedback changed renderer visibility.");
+        Assert.That(rootRenderer.color.r,Is.EqualTo(rootColor.r).Within(0.001f));
+        Assert.That(rootRenderer.color.g,Is.EqualTo(rootColor.g).Within(0.001f));
+        Assert.That(rootRenderer.color.b,Is.EqualTo(rootColor.b).Within(0.001f));
+        Assert.That(rootRenderer.color.a,Is.LessThan(rootColor.a));
+        Assert.That(childRenderer.color.a,Is.LessThan(childColor.a));
+
+        restore.Invoke(feedback,null);
+
+        Assert.That(rootRenderer.color,Is.EqualTo(rootColor));
+        Assert.That(childRenderer.color,Is.EqualTo(childColor));
+        UnityEngine.Object.DestroyImmediate(root);
+    }
+
     private static Type FindRuntimeType(string typeName)
     {
         return AppDomain.CurrentDomain.GetAssemblies()

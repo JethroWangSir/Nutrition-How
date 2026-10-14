@@ -30,8 +30,8 @@ public class player : MonoBehaviour
     static public int hp;
     public float invincibleTime,invincibleTimer;
     static public bool isInvincible;
-    private float shake;
-    private SpriteRenderer BoxColliderClick;
+    private float damagePulseElapsed;
+    private SpriteDamageFeedback damageFeedback;
     public PhysicsMaterial2D slopePhysicsMaterial2D;
     public PhysicsMaterial2D nofrictionPhysicsMaterial2D;
     public GameObject loseDialog;
@@ -78,6 +78,7 @@ public class player : MonoBehaviour
     }
     void OnDisable()
     {
+        damageFeedback?.Restore();
         controls.Player.Disable();
     }
     void OnDestroy()
@@ -96,7 +97,7 @@ public class player : MonoBehaviour
         anim=GetComponent<Animator>();
         hp=maxHp;
         isInvincible=false;
-        BoxColliderClick=GetComponent<SpriteRenderer>();
+        damageFeedback=new SpriteDamageFeedback(gameObject);
         collections=0;
         collectionAnim=GameObject.Find("collectionsnum").GetComponent<Animator>();
         hpAnim=GameObject.Find("hpbar_bottom").GetComponent<Animator>();
@@ -637,34 +638,21 @@ public class player : MonoBehaviour
         }
         isInvincible=true;
         invincibleTimer=invincibleTime;
+        damagePulseElapsed=0f;
+        damageFeedback?.Restore();
     }
     void Invinsible()
     {
         if(isInvincible)
         {
             invincibleTimer-=Time.deltaTime;
-            Shake();
-            if (invincibleTimer<0)
+            damagePulseElapsed+=Time.deltaTime;
+            damageFeedback?.Pulse(damagePulseElapsed);
+            if (invincibleTimer<=0f)
             {
-                BoxColliderClick.enabled=true;
+                damageFeedback?.Restore();
                 isInvincible=false;
             }
-        }
-    }
-    void Shake()
-    {
-        shake+=Time.deltaTime;
-        //Debug.Log(shake);
-        //取余运算，结果是0到被除数之间的值
-        //如果除数是1 1.1 1.2 1.3 1.4 1.5 1.6 
-        //那么余数是0 0.1 0.2 0.3 0.4 0.5 0.6
-        if (shake%0.2f>0.1f)
-        {
-            BoxColliderClick.enabled=true;
-        }
-        else
-        {
-            BoxColliderClick.enabled=false;
         }
     }
 

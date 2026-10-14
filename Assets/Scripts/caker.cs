@@ -25,12 +25,20 @@ public class caker : MonoBehaviour
     public float invincibleTime,invincibleTimer;
     public bool isInvincible;
     private bool deathScheduled;
+    private float damagePulseElapsed;
+    private SpriteDamageFeedback damageFeedback;
     void Start()
     {
         rb=GetComponent<Rigidbody2D>();
         anim=GetComponent<Animator>();
         coll=GetComponent<Collider2D>();
+        damageFeedback=new SpriteDamageFeedback(gameObject);
         hp=max_hp;
+    }
+
+    void OnDisable()
+    {
+        damageFeedback?.Restore();
     }
 
     void FixedUpdate()
@@ -215,16 +223,19 @@ public class caker : MonoBehaviour
         }
         isInvincible=true;
         invincibleTimer=invincibleTime;
+        damagePulseElapsed=0f;
+        damageFeedback?.Restore();
     }
     void Invinsible()
     {
         if(isInvincible)
         {
             invincibleTimer-=Time.deltaTime;
-            // Shake();
-            if (invincibleTimer<0)
+            damagePulseElapsed+=Time.deltaTime;
+            damageFeedback?.Pulse(damagePulseElapsed);
+            if (invincibleTimer<=0f)
             {
-                // BoxColliderClick.enabled=true;
+                damageFeedback?.Restore();
                 isInvincible=false;
             }
         }

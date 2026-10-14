@@ -23,8 +23,8 @@ public class ship : MonoBehaviour
     public float invincibleTime;
     public float invincibleTimer;
     static public bool isInvincible;
-    private float shake;
-    private SpriteRenderer BoxColliderClick;
+    private float damagePulseElapsed;
+    private SpriteDamageFeedback damageFeedback;
     public GameObject loseDialog;
     public bool passLevel;
     public GameObject door;
@@ -51,6 +51,7 @@ public class ship : MonoBehaviour
     }
     void OnDisable()
     {
+        damageFeedback?.Restore();
         controls.Player.Disable();
     }
     void OnDestroy()
@@ -68,7 +69,7 @@ public class ship : MonoBehaviour
         anim=GetComponent<Animator>();
         hp = max_hp;
         isInvincible=false;
-        BoxColliderClick=GetComponent<SpriteRenderer>();
+        damageFeedback=new SpriteDamageFeedback(gameObject);
         collections=0;
         collectionAnim=GameObject.Find("collectionsnum").GetComponent<Animator>();
         hpAnim=GameObject.Find("hpbar_bottom").GetComponent<Animator>();
@@ -271,30 +272,21 @@ public class ship : MonoBehaviour
         }
         isInvincible=true;
         invincibleTimer=invincibleTime;
+        damagePulseElapsed=0f;
+        damageFeedback?.Restore();
     }
     void Invinsible()
     {
         if(isInvincible)
         {
             invincibleTimer-=Time.deltaTime;
-            Shake();
-            if (invincibleTimer<0)
+            damagePulseElapsed+=Time.deltaTime;
+            damageFeedback?.Pulse(damagePulseElapsed);
+            if (invincibleTimer<=0f)
             {
-                BoxColliderClick.enabled=true;
+                damageFeedback?.Restore();
                 isInvincible=false;
             }
-        }
-    }
-    void Shake()
-    {
-        shake+=Time.deltaTime;
-        if (shake%0.2f>0.1f)
-        {
-            BoxColliderClick.enabled=true;
-        }
-        else
-        {
-            BoxColliderClick.enabled=false;
         }
     }
 

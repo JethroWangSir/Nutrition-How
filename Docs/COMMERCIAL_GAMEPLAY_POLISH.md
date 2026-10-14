@@ -44,6 +44,26 @@
 - 跳躍力、重力倍率、短按倍率、水平速度與關卡素材皆未變更，因此這批只增加輸入容錯，不直接降低關卡難度。
 - LZ4HC Release Build 成功：398 MB；主執行檔為 `arm64`，App 與執行檔名稱皆為「營養 How 解」，Bundle Identifier 為 `com.jethrowangsir.nutritionhow`，`codesign --verify --deep --strict` 通過。
 
+## 第二批：鏡頭稽核與受傷視覺回饋
+
+六個遊玩場景皆已使用 Cinemachine Framing Transposer、X/Y 軸 1 秒阻尼與 Confiner；前三個平台關卡、橫向飛船及自由方向關卡的鏡頭需求不同，因此不直接把同一組 Lookahead／Dead Zone 套用到全部場景。現階段保留原本構圖與關卡邊界，待移動中畫面量測後再作場景別調整。
+
+受傷回饋原先每 0.1 秒直接停用整個 `SpriteRenderer`，會讓角色與飛船完全消失，Boss 則只有聲音和動作、無一致的無敵提示。第二批改為共用的透明度脈衝：
+
+- 玩家、第三關後半飛船與前三關 Boss 共用 0.2 秒脈衝週期。
+- 最低保留原透明度的 35%，角色輪廓與位置持續可見。
+- 不變更 Renderer 的啟用狀態，避免動畫或子物件顯示狀態被回饋程式覆寫。
+- 無敵結束、物件停用或場景切換時還原每張 Sprite 原本顏色與透明度。
+- 不改變 HP、傷害、無敵時間、碰撞與 Boss 行為。
+
+### 第二批驗證結果
+
+- Unity Editor（Metal）PlayMode：21/21 通過，0 failed，執行時間 56.49 秒；原有 20 項流程、場景載入、操作與穩定性測試全部維持通過。
+- 新增回歸測試確認透明度脈衝期間角色輪廓仍可見、原本停用的子 Sprite 不會被誤啟用、RGB 顏色不變，並能完整還原原始透明度。
+- 測試期間 Console 為 0 error；既有影片色彩描述與測試場景暫無 Audio Listener 訊息未造成測試失敗。
+- 鏡頭設定本批只完成場景稽核，沒有在缺乏移動畫面量測時套用通用 Lookahead／Dead Zone，避免不同控制方式出現過度前視或鏡頭晃動。
+- LZ4HC Release Build 成功：398 MB；新產物主執行檔為 `arm64`，App 與執行檔名稱皆為「營養 How 解」，Bundle Identifier 為 `com.jethrowangsir.nutritionhow`，`codesign --verify --deep --strict` 通過。
+
 ## 階段完成條件
 
 1. 核心控制、鏡頭與回饋的高優先級項目完成。
