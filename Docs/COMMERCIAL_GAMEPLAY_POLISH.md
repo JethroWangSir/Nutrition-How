@@ -83,6 +83,27 @@
 - 第四關起始畫面仍會在擷取時間點顯示既有倒數遮罩，與本批鏡頭設定無關。
 - LZ4HC Release Build 成功：398 MB；主執行檔為 `arm64`，App 與執行檔名稱皆為「營養 How 解」，Bundle Identifier 為 `com.jethrowangsir.nutritionhow`，`codesign --verify --deep --strict` 通過。
 
+## 第四批：成功／失敗回饋分級與難度資料基線
+
+沿用既有音效素材建立一致的重要事件層級，不新增付費或外部素材：
+
+- Boss／關鍵目標完成使用主要成功音效；第三關收集門檻與第四關最終水域只播放一次。
+- HP 歸零、目標條件不足與第四關超時使用失敗音效；即使同一條件連續更新，也只播放一次。
+- 保留既有受傷、收集、倒數、開門與場景切換音效，避免一般事件和關鍵結果使用同一強度。
+- 所有新音效呼叫皆容許 `soundmanager` 暫時不存在，避免測試或場景卸載期間發生空值錯誤。
+
+難度不直接依開發者熟練度調整；改由 `GameplayPlaytestMetrics` 在本機記錄每次關卡嘗試的關卡編號、同次啟動中的嘗試序號、完成／失敗、失敗原因與耗時。資料為 JSONL、不連網、不含玩家名稱或裝置識別資訊；第三、四關的前後半場景會視為同一次關卡嘗試。
+
+### 第四批驗證結果
+
+- Unity Editor（Metal）PlayMode：23/23 通過，0 failed，執行時間 60.89 秒。
+- 新增回歸測試確認同一次嘗試只寫一筆結果、失敗原因正確、下一次嘗試序號增加，且死亡與超時的一次性回饋都有觸發。
+- 測試輸出使用獨立暫存路徑；測試結束後正式 `playtest-metrics.jsonl` 維持不存在，沒有混入自動測試資料。
+- 視覺回歸：1024×768、1280×800、1920×1080 各 23 張，共 69 張；選單、主要遊玩場景、HUD 與既有第四關倒數遮罩均無新增裁切或偏移。
+- 三組 Player 日誌未出現 `NullReferenceException`、`IndexOutOfRangeException`、Assertion 或 Crash。
+- 詳細資料位置與欄位說明見 `Docs/PLAYTEST_METRICS.md`。
+- LZ4HC Release Build 成功：398 MB；主執行檔為 `arm64`，App 與執行檔名稱皆為「營養 How 解」，Bundle Identifier 為 `com.jethrowangsir.nutritionhow`，`codesign --verify --deep --strict` 通過。
+
 ## 階段完成條件
 
 1. 核心控制、鏡頭與回饋的高優先級項目完成。

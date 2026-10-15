@@ -32,6 +32,8 @@ public class ship : MonoBehaviour
     private bool loseScheduled;
     private bool sceneTransitionScheduled;
     private bool winAnimationPlayed;
+    private bool failureFeedbackPlayed;
+    private string pendingFailureReason="health_depleted";
     private int displayedHp=int.MinValue;
     private int displayedCollections=int.MinValue;
     private void Awake()
@@ -149,17 +151,27 @@ public class ship : MonoBehaviour
     void Lose()
     {
         hp=0;
+        if(!failureFeedbackPlayed)
+        {
+            failureFeedbackPlayed=true;
+            if(soundmanager.sound_instance!=null)
+            {
+                soundmanager.sound_instance.FailureAudio();
+            }
+            GameplayPlaytestMetrics.FailActiveLevel(pendingFailureReason);
+        }
         loseDialog.SetActive(true);
         Time.timeScale=0f;
     }
 
-    void ScheduleLose()
+    void ScheduleLose(string reason="health_depleted")
     {
         if(loseScheduled)
         {
             return;
         }
         loseScheduled=true;
+        pendingFailureReason=reason;
         Invoke(nameof(Lose),1.5f);
     }
 
@@ -169,7 +181,7 @@ public class ship : MonoBehaviour
         {
             if(collections<=7)
             {
-                ScheduleLose();
+                ScheduleLose("objective_requirement");
             }
         }
     }
@@ -236,7 +248,7 @@ public class ship : MonoBehaviour
         else
         {
             hpAnim.Play("hp1");
-            ScheduleLose();
+            ScheduleLose("health_depleted");
         }
     }
 
@@ -253,6 +265,10 @@ public class ship : MonoBehaviour
             {
                 winAnimationPlayed=true;
                 door.SetActive(true);
+                if(soundmanager.sound_instance!=null)
+                {
+                    soundmanager.sound_instance.VictoryAudio();
+                }
                 if(winAnim!=null)
                 {
                     winAnim.Play("win");

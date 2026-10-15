@@ -139,6 +139,14 @@ public class soundmanager : MonoBehaviour
     {
         PlayEffect(doorAudio);
     }
+    public void VictoryAudio()
+    {
+        PlayEffect(correctAudio);
+    }
+    public void FailureAudio()
+    {
+        PlayEffect(wrongAudio);
+    }
 
     private void PlayEffect(AudioClip clip)
     {

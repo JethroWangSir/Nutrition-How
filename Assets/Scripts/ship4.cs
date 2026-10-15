@@ -23,6 +23,8 @@ public class ship4 : MonoBehaviour
     public GameObject water;
     private bool timerExpired;
     private bool sceneTransitionScheduled;
+    private bool victoryFeedbackPlayed;
+    private bool failureFeedbackPlayed;
     private int growthStage;
     private int displayedSeconds=int.MinValue;
     private int countdownImageIndex=int.MinValue;
@@ -103,6 +105,15 @@ public class ship4 : MonoBehaviour
                 if(waterCollider!=null)
                 {
                     waterCollider.enabled=false;
+                }
+                if(!failureFeedbackPlayed)
+                {
+                    failureFeedbackPlayed=true;
+                    if(soundmanager.sound_instance!=null)
+                    {
+                        soundmanager.sound_instance.FailureAudio();
+                    }
+                    GameplayPlaytestMetrics.FailActiveLevel("time_expired");
                 }
                 loseDialog.SetActive(true);
                 Time.timeScale=0f;
@@ -197,6 +208,14 @@ public class ship4 : MonoBehaviour
             soundmanager.sound_instance.SwimAudio();
             anim.Play("smaller");
             Invoke(nameof(NextShip1),0.8f);
+            if(!victoryFeedbackPlayed)
+            {
+                victoryFeedbackPlayed=true;
+                if(soundmanager.sound_instance!=null)
+                {
+                    soundmanager.sound_instance.VictoryAudio();
+                }
+            }
             door.SetActive(true);
         }
         if(collision.tag=="door" && !sceneTransitionScheduled)

@@ -91,6 +91,7 @@ public class pass : MonoBehaviour
         SetLevelComplete(levelNumber,true);
         PlayerPrefs.SetInt(ProgressKeys[levelNumber-1],1);
         PlayerPrefs.Save();
+        GameplayPlaytestMetrics.CompleteLevel(levelNumber);
     }
 
     public static void LoadProgress()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -11,12 +12,17 @@ using UnityEngine.TestTools;
 public class GameplayFlowTests
 {
     private const float SceneLoadTimeoutSeconds = 8f;
+    private string metricsTestPath;
 
     [SetUp]
     public void SetUp()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneLoaded += OnSceneLoaded;
+        metricsTestPath=Path.Combine(
+            Application.temporaryCachePath,
+            $"nutrition-how-playtest-metrics-{Guid.NewGuid():N}.jsonl");
+        InvokeStatic("GameplayPlaytestMetrics","ConfigureOutputForTests",metricsTestPath);
         ResetProgress();
     }
 
@@ -24,6 +30,10 @@ public class GameplayFlowTests
     public void TearDown()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if(!string.IsNullOrEmpty(metricsTestPath) && File.Exists(metricsTestPath))
+        {
+            File.Delete(metricsTestPath);
+        }
         ResetProgress();
     }
 
@@ -166,6 +176,8 @@ public class GameplayFlowTests
         yield return new WaitForSecondsRealtime(1.6f);
 
         Assert.IsTrue(loseDialog.activeSelf, "The death dialog did not appear.");
+        Assert.IsTrue((bool)GetField(activePlayer, "failureFeedbackPlayed"),
+            "The death flow did not issue its one-shot failure feedback.");
         Assert.AreEqual(0f, Time.timeScale, "Gameplay continued behind the failure dialog.");
 
         MonoBehaviour menuController = RequireBehaviour("menu", "level menu");
@@ -241,6 +253,8 @@ public class GameplayFlowTests
 
         Assert.IsTrue(loseDialog.activeSelf, "The timeout dialog did not appear.");
         Assert.IsTrue((bool)GetField(levelShip, "timerExpired"));
+        Assert.IsTrue((bool)GetField(levelShip, "failureFeedbackPlayed"),
+            "The timeout flow did not issue its one-shot failure feedback.");
         Assert.IsFalse(water.GetComponent<BoxCollider2D>().enabled);
         Assert.AreEqual(0f, Time.timeScale, "Gameplay continued behind the timeout dialog.");
     }
@@ -334,6 +348,38 @@ public class GameplayFlowTests
             Assert.That(GetFloatField(framing,"m_LookaheadTime"),Is.EqualTo(0f).Within(0.001f),
                 $"Unvalidated lookahead was enabled in {activeScene.name}.");
         }
+    }
+
+    [UnityTest]
+    [Order(13)]
+    public IEnumerator LocalPlaytestMetricsRecordOneOutcomePerAttempt()
+    {
+        yield return LoadScene(NutritionHowScenes.Level4Part1);
+        if(File.Exists(metricsTestPath))
+        {
+            File.Delete(metricsTestPath);
+        }
+
+        InvokeStatic("GameplayPlaytestMetrics","ConfigureOutputForTests",metricsTestPath);
+        InvokeStatic("GameplayPlaytestMetrics","BeginLevelForTests",4);
+        InvokeStatic("GameplayPlaytestMetrics","FailActiveLevel","time_expired");
+        InvokeStatic("GameplayPlaytestMetrics","FailActiveLevel","time_expired");
+
+        Assert.IsTrue(File.Exists(metricsTestPath),"The local playtest metrics file was not created.");
+        string[] records=File.ReadAllLines(metricsTestPath);
+        Assert.AreEqual(1,records.Length,"One failed attempt produced duplicate metric records.");
+        StringAssert.Contains("\"level\":4",records[0]);
+        StringAssert.Contains("\"attempt\":1",records[0]);
+        StringAssert.Contains("\"outcome\":\"failed\"",records[0]);
+        StringAssert.Contains("\"reason\":\"time_expired\"",records[0]);
+
+        InvokeStatic("GameplayPlaytestMetrics","BeginLevelForTests",4);
+        InvokeStatic("GameplayPlaytestMetrics","CompleteLevel",4);
+        records=File.ReadAllLines(metricsTestPath);
+        Assert.AreEqual(2,records.Length);
+        StringAssert.Contains("\"attempt\":2",records[1]);
+        StringAssert.Contains("\"outcome\":\"completed\"",records[1]);
+        StringAssert.Contains("\"elapsedSeconds\":",records[1]);
     }
 
     private static IEnumerator LoadScene(int buildIndex)
@@ -438,6 +484,17 @@ public class GameplayFlowTests
         return AppDomain.CurrentDomain.GetAssemblies()
             .Select(assembly => assembly.GetType(typeName))
             .FirstOrDefault(type => type != null);
+    }
+
+    private static void InvokeStatic(string typeName,string methodName,params object[] arguments)
+    {
+        Type type=FindRuntimeType(typeName);
+        Assert.IsNotNull(type,$"Could not find runtime type {typeName}.");
+        MethodInfo method=type.GetMethod(
+            methodName,
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.IsNotNull(method,$"{typeName}.{methodName} is missing.");
+        method.Invoke(null,arguments);
     }
 
     private static MonoBehaviour AddRuntimeComponent(GameObject target, string typeName)
