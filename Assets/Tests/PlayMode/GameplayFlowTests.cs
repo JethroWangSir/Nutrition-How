@@ -8,11 +8,18 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 
 public class GameplayFlowTests
 {
     private const float SceneLoadTimeoutSeconds = 8f;
+    private const string EffectsVolumePreference = "settings.effectsVolumeDb";
+    private const string ReducedFlashingPreference = "settings.reducedFlashing";
     private string metricsTestPath;
+    private bool hadEffectsVolumePreference;
+    private float savedEffectsVolumePreference;
+    private bool hadReducedFlashingPreference;
+    private int savedReducedFlashingPreference;
 
     [SetUp]
     public void SetUp()
@@ -23,6 +30,14 @@ public class GameplayFlowTests
             Application.temporaryCachePath,
             $"nutrition-how-playtest-metrics-{Guid.NewGuid():N}.jsonl");
         InvokeStatic("GameplayPlaytestMetrics","ConfigureOutputForTests",metricsTestPath);
+        hadEffectsVolumePreference=PlayerPrefs.HasKey(EffectsVolumePreference);
+        savedEffectsVolumePreference=PlayerPrefs.GetFloat(
+            EffectsVolumePreference,
+            0f);
+        hadReducedFlashingPreference=PlayerPrefs.HasKey(ReducedFlashingPreference);
+        savedReducedFlashingPreference=PlayerPrefs.GetInt(
+            ReducedFlashingPreference,
+            0);
         ResetProgress();
     }
 
@@ -35,6 +50,15 @@ public class GameplayFlowTests
             File.Delete(metricsTestPath);
         }
         ResetProgress();
+        RestorePreference(
+            EffectsVolumePreference,
+            hadEffectsVolumePreference,
+            savedEffectsVolumePreference);
+        RestorePreference(
+            ReducedFlashingPreference,
+            hadReducedFlashingPreference,
+            savedReducedFlashingPreference);
+        PlayerPrefs.Save();
     }
 
     private static void ResetProgress()
@@ -382,6 +406,81 @@ public class GameplayFlowTests
         StringAssert.Contains("\"elapsedSeconds\":",records[1]);
     }
 
+    [UnityTest]
+    [Order(14)]
+    public IEnumerator AccessibilityControlsPersistAndReduceDamageFlashing()
+    {
+        InvokeStatic("GameAccessibilitySettings","SetEffectsVolume",-20f);
+        InvokeStatic("GameAccessibilitySettings","SetReducedFlashing",true);
+        ResetProgress();
+
+        Assert.That((float)GetStaticProperty("GameAccessibilitySettings","EffectsVolumeDb"),
+            Is.EqualTo(-20f).Within(0.001f));
+        Assert.That((float)GetStaticProperty("GameAccessibilitySettings","EffectsVolumeLinear"),
+            Is.EqualTo(0.1f).Within(0.001f));
+        Assert.IsTrue((bool)GetStaticProperty("GameAccessibilitySettings","ReducedFlashingEnabled"),
+            "Campaign progress reset removed the accessibility setting.");
+
+        yield return LoadScene(NutritionHowScenes.Start);
+        Slider effectsSlider=GameObject.Find("EffectsVolumeSlider")?.GetComponent<Slider>();
+        Assert.IsNotNull(effectsSlider,"The independent effects-volume control is missing.");
+        Assert.That(effectsSlider.value,Is.EqualTo(-20f).Within(0.001f));
+
+        Button flashingButton=GameObject.Find("ReducedFlashingButton")?.GetComponent<Button>();
+        Assert.IsNotNull(flashingButton,"The reduced-flashing control is missing.");
+        StringAssert.Contains("開",flashingButton.GetComponentInChildren<Text>().text);
+        flashingButton.onClick.Invoke();
+        Assert.IsFalse((bool)GetStaticProperty("GameAccessibilitySettings","ReducedFlashingEnabled"));
+        StringAssert.Contains("關",flashingButton.GetComponentInChildren<Text>().text);
+        flashingButton.onClick.Invoke();
+        Assert.IsTrue((bool)GetStaticProperty("GameAccessibilitySettings","ReducedFlashingEnabled"));
+        StringAssert.Contains("開",flashingButton.GetComponentInChildren<Text>().text);
+
+        GameObject feedbackTarget=new GameObject("damage-feedback-test");
+        SpriteRenderer renderer=feedbackTarget.AddComponent<SpriteRenderer>();
+        renderer.color=new Color(1f,1f,1f,0.8f);
+        Type feedbackType=FindRuntimeType("SpriteDamageFeedback");
+        Assert.IsNotNull(feedbackType,"The damage-feedback runtime type is missing.");
+        object feedback=Activator.CreateInstance(feedbackType,new object[] { feedbackTarget });
+        InvokeObject(feedback,"Pulse",0f);
+        float firstAlpha=renderer.color.a;
+        float pulsePeriod=(float)feedbackType.GetField("PulsePeriod").GetRawConstantValue();
+        float reducedAlpha=(float)feedbackType.GetField("ReducedFlashingAlpha").GetRawConstantValue();
+        InvokeObject(feedback,"Pulse",pulsePeriod*0.5f);
+        float secondAlpha=renderer.color.a;
+
+        Assert.That(firstAlpha,Is.EqualTo(0.8f*reducedAlpha).Within(0.001f));
+        Assert.That(secondAlpha,Is.EqualTo(firstAlpha).Within(0.001f),
+            "Reduced flashing still produced a rapid alpha pulse.");
+
+        InvokeObject(feedback,"Restore");
+        Assert.That(renderer.color.a,Is.EqualTo(0.8f).Within(0.001f));
+        UnityEngine.Object.Destroy(feedbackTarget);
+        yield return null;
+    }
+
+    private static void RestorePreference(string key,bool hadValue,float value)
+    {
+        if(hadValue)
+        {
+            PlayerPrefs.SetFloat(key,value);
+        }else
+        {
+            PlayerPrefs.DeleteKey(key);
+        }
+    }
+
+    private static void RestorePreference(string key,bool hadValue,int value)
+    {
+        if(hadValue)
+        {
+            PlayerPrefs.SetInt(key,value);
+        }else
+        {
+            PlayerPrefs.DeleteKey(key);
+        }
+    }
+
     private static IEnumerator LoadScene(int buildIndex)
     {
         ResetProgress();
@@ -495,6 +594,26 @@ public class GameplayFlowTests
             BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
         Assert.IsNotNull(method,$"{typeName}.{methodName} is missing.");
         method.Invoke(null,arguments);
+    }
+
+    private static object GetStaticProperty(string typeName,string propertyName)
+    {
+        Type type=FindRuntimeType(typeName);
+        Assert.IsNotNull(type,$"Could not find runtime type {typeName}.");
+        PropertyInfo property=type.GetProperty(
+            propertyName,
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.IsNotNull(property,$"{typeName}.{propertyName} is missing.");
+        return property.GetValue(null);
+    }
+
+    private static void InvokeObject(object target,string methodName,params object[] arguments)
+    {
+        MethodInfo method=target.GetType().GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.IsNotNull(method,$"{target.GetType().Name}.{methodName} is missing.");
+        method.Invoke(target,arguments);
     }
 
     private static MonoBehaviour AddRuntimeComponent(GameObject target, string typeName)

@@ -4,6 +4,7 @@ public sealed class SpriteDamageFeedback
 {
     public const float PulsePeriod = 0.2f;
     public const float MinimumAlpha = 0.35f;
+    public const float ReducedFlashingAlpha = 0.72f;
 
     private readonly SpriteRenderer[] renderers;
     private readonly Color[] originalColors;
@@ -20,8 +21,15 @@ public sealed class SpriteDamageFeedback
 
     public void Pulse(float elapsedTime)
     {
-        float phase=Mathf.PingPong(elapsedTime/(PulsePeriod*0.5f),1f);
-        float alphaMultiplier=Mathf.Lerp(MinimumAlpha,1f,phase);
+        float alphaMultiplier;
+        if(GameAccessibilitySettings.ReducedFlashingEnabled)
+        {
+            alphaMultiplier=ReducedFlashingAlpha;
+        }else
+        {
+            float phase=Mathf.PingPong(elapsedTime/(PulsePeriod*0.5f),1f);
+            alphaMultiplier=Mathf.Lerp(MinimumAlpha,1f,phase);
+        }
         for(int index=0;index<renderers.Length;index++)
         {
             if(renderers[index]==null)

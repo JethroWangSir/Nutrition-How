@@ -156,6 +156,6 @@ public class soundmanager : MonoBehaviour
         }
         // UI and gameplay events can happen close together. PlayOneShot keeps
         // the earlier feedback audible instead of replacing it mid-sound.
-        audioSource.PlayOneShot(clip);
+        audioSource.PlayOneShot(clip,GameAccessibilitySettings.EffectsVolumeLinear);
     }
 }
